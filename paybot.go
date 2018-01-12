@@ -95,6 +95,29 @@ for k, v := range m {
 
 
 
+
+
+
+    places = append(places, loc)
+
+    // Create another struct.
+    loc = new(Location)
+    loc.x = 5
+    loc.y = 8
+    loc.valid = true
+
+    places = append(places, loc)
+
+    // Loop over all indexes in the slice.
+    // ... Print all struct data.
+    for i := range(places) {
+        place := places[i]
+        fmt.Println("Location:", place)
+    }
+
+
+
+
 total=`/opt/gobyte/gobyte-cli getbalance`
 
 admin=$( bc -l <<<"0.10*$total" )

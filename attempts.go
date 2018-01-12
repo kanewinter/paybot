@@ -23,16 +23,13 @@ package main
         Pay     int64
     }
 
-func parse() {
+func parse(payments) {
     // Open file and create scanner on top of it
     file, err := os.Open("test.txt")
     if err != nil {
         log.Fatal(err)
     }
     scanner := bufio.NewScanner(file)
-
-
-
     i:= 0
 
     for scanner.Scan() {
@@ -40,12 +37,14 @@ func parse() {
 
         temp := strings.Split(scanner.Text(), " ")
 
-        payees[i].Wallet := temp[0]
-        payees[i].Share := temp[1]
-        payees[i].Pay := ((payees[i].Share / collateral) * customerpay)
+        payees := new(Payee)
+        payees[i].Wallet= temp[0]
+        payees[i].Share= temp[1]
+        payees[i].Pay= ((payees[i].Share / collateral) * customerpay)
         fmt.Println(payees[i].Wallet payees[i].Share payees[i].Pay)
+        payments = append(payments, payees)
 
-        ++i
+        i= i+1
 
     }
 }
@@ -53,7 +52,7 @@ func parse() {
 
     func main() {
 
-    payees := make([]Payee)
+    payments := []*Payee{}
 
 
 
@@ -94,7 +93,7 @@ func parse() {
 
 
 
-    parse()
+    parse(payments)
 
 
 
