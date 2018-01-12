@@ -31,12 +31,10 @@ package main
             fmt.Print(err)
         }
 
-        fmt.Println(b) // print the content as 'bytes'
-        str := string(b) // convert content to a 'string'
+        fmt.Println(textfile) // print the content as 'bytes'
+        str := string(textfile) // convert content to a 'string'
         fmt.Println(str)
 
     fmt.Println()
-    //payee := m.[]interface{}
-    //fmt.Println(payee\n)
 
     }
