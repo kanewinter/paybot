@@ -23,8 +23,7 @@ package main
     fmt.Print(string(datafile))
 
     var jsondata interface{}
-    if err := json.Unmarshal(datafile, &jsondata) {
-            log.Fatal(err) }
+    jsondata, err := json.Unmarshal(datafile, &jsondata)
     fmt.Print(interface{}(jsondata))
 
 
