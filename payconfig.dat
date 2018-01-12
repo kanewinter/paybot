@@ -1,0 +1,12 @@
+{
+  "coin": "GoByte",
+  "walletpath": "/path/to/wallet.dat",
+  "collateral": 1000,
+  "adminwallet": "dhdsjrshrgs",
+  "customerdata": [
+    {
+      "walletaddress1fvsjnnk": 200,
+      "walletaddress2fkdmbkd": 600,
+      "walletaddress3bdgnssh": 200
+    }]
+}
