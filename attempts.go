@@ -6,7 +6,8 @@ package main
         "io/ioutil"
         "encoding/json"
         "bufio"
-        //"os"
+        "log"
+        "os"
     )
 
     func check(e error) {
@@ -23,22 +24,10 @@ func parse() {
     }
     scanner := bufio.NewScanner(file)
 
-    // Scan for next token.
-    success := scanner.Scan()
-    if success == false {
-        // False on error or EOF. Check error
-        err = scanner.Err()
-        if err == nil {
-            log.Println("Scan completed and reached EOF")
-        } else {
-            log.Fatal(err)
-        }
+    for scanner.Scan {
+        fmt.Println("First line found:", scanner.Text())
+
     }
-
-    // Get data from scan with Bytes() or Text()
-    fmt.Println("First line found:", scanner.Text())
-
-    // Call scanner.Scan() again to find next token
 }
 
 
