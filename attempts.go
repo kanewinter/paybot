@@ -10,11 +10,6 @@ package main
 
     func Unmarshal(data []byte, v interface{}) error
 
-    func check(e error) {
-        if e != nil {
-            panic(e)
-        }
-    }
 
 
 
