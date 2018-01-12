@@ -7,6 +7,8 @@ package main
         "encoding/json"
         //"os"
     )
+    var err
+
 
     func Unmarshal(data []byte, v interface{}) error
 
