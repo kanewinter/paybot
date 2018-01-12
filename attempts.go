@@ -18,16 +18,22 @@ package main
 
     datafile, err := ioutil.ReadFile("payconfig.dat")
     check(err)
-    fmt.Print(string(datafile))
+    fmt.Println(string(datafile))
     fmt.Println()
 
     var jsondata interface{}
     json.Unmarshal(datafile, &jsondata)
-    fmt.Print(interface{}(jsondata))
+    fmt.Println(interface{}(jsondata))
     fmt.Println()
 
-    m := jsondata.customerdata
-    fmt.Println(m)
+    textfile, err := ioutil.ReadFile("payconfig.dat")
+        if err != nil {
+            fmt.Print(err)
+        }
+
+        fmt.Println(b) // print the content as 'bytes'
+        str := string(b) // convert content to a 'string'
+        fmt.Println(str)
 
     fmt.Println()
     //payee := m.[]interface{}
