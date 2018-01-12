@@ -7,8 +7,6 @@ package main
         "encoding/json"
         //"os"
     )
-    var err
-
 
     func Unmarshal(data []byte, v interface{}) error
 
@@ -25,7 +23,8 @@ package main
     fmt.Print(string(datafile))
 
     var jsondata interface{}
-    err := json.Unmarshal(datafile, &jsondata)
+    if err := json.Unmarshal(datafile, &jsondata) {
+            log.Fatal(err) }
     fmt.Print(interface{}(jsondata))
 
 
