@@ -33,7 +33,7 @@ func parse() {
 
 
 
-    var int i:= 0
+    i:= 0
 
     for scanner.Scan() {
         fmt.Println("Line:", scanner.Text())
