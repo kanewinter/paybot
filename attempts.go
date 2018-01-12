@@ -5,7 +5,7 @@ package main
         "fmt"
         "io/ioutil"
         "encoding/json"
-        "os"
+        ;"os"
     )
 
     func Unmarshal(data []byte, v interface{}) error
@@ -24,7 +24,7 @@ package main
 
     var jsondata interface{}
     err := json.Unmarshal(datafile, &jsondata)
-    fmt.Print(string(jsondata))
+    fmt.Print(interface{}(jsondata))
 
 
     }
