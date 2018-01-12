@@ -38,10 +38,10 @@ func parse(payments) {
         temp := strings.Split(scanner.Text(), " ")
 
         payees := new(Payee)
-        payees[i].Wallet= temp[0]
-        payees[i].Share= temp[1]
-        payees[i].Pay= ((payees[i].Share / collateral) * customerpay)
-        fmt.Println(payees[i].Wallet payees[i].Share payees[i].Pay)
+        payees.Wallet= temp[0]
+        payees.Share= temp[1]
+        payees.Pay= ((payees.Share / collateral) * customerpay)
+        fmt.Println(payees.Wallet, payees.Share, payees.Pay)
         payments = append(payments, payees)
 
         i= i+1
@@ -81,15 +81,15 @@ func parse(payments) {
 
     fmt.Println()
 
-    var int64 balance:= 37.5
+    var int64 balance= 37.5
 
 
 
-    collateral := jsondata.collateral
-    balance := balance()
-    adminpercentage := jsondata.adminpercentage
-    adminpay:= (balance * adminpercentage)
-    customerpay:= balance - adminpay
+    var int collateral= 1000 //jsondata.collateral
+    var int64 balance= balance()
+    var int64 adminpercentage= jsondata.adminpercentage
+    var int64 adminpay= (balance * adminpercentage)
+    var int64 customerpay= balance - adminpay
 
 
 
