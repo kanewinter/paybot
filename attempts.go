@@ -25,7 +25,8 @@ package main
     fmt.Print(interface{}(jsondata))
 
     m := jsondata.(map[string]interface{})
-    payee := m.[]interface{}
-    fmt.Println(payee)
+    fmt.Println(m)
+    //payee := m.[]interface{}
+    //fmt.Println(payee)
 
     }
