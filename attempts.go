@@ -31,9 +31,9 @@ func parse() {
     }
     scanner := bufio.NewScanner(file)
 
-    payees := make([]Payee)
 
-    var int i := 0
+
+    var int i:= 0
 
     for scanner.Scan() {
         fmt.Println("Line:", scanner.Text())
@@ -51,17 +51,9 @@ func parse() {
 }
 
 
-
-
-
-
-
-
-
-
-
     func main() {
 
+    payees := make([]Payee)
 
 
 
@@ -96,7 +88,8 @@ func parse() {
 
     collateral := jsondata.collateral
     balance := balance()
-    adminpay:= (balance * 0.1)
+    adminpercentage := jsondata.adminpercentage
+    adminpay:= (balance * adminpercentage)
     customerpay:= balance - adminpay
 
 
