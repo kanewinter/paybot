@@ -18,8 +18,13 @@ package main
 
     func main() {
 
-    var datafile, err := ioutil.ReadFile("payconfig.dat")
+    datafile, err := ioutil.ReadFile("payconfig.dat")
     check(err)
     fmt.Print(string(datafile))
+
+    var jsondata interface{}
+    err := json.Unmarshal(datafile, &jsondata)
+    fmt.Print(string(jsondata))
+
 
     }
