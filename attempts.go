@@ -8,12 +8,19 @@ package main
         "bufio"
         "log"
         "os"
+        "strings"
     )
 
     func check(e error) {
         if e != nil {
             panic(e)
         }
+    }
+
+    type Payee struct {
+        Wallet string
+        Share     int
+        Pay     int64
     }
 
 func parse() {
@@ -24,8 +31,21 @@ func parse() {
     }
     scanner := bufio.NewScanner(file)
 
-    for scanner.Scan {
-        fmt.Println("First line found:", scanner.Text())
+    payees := make([]Payee)
+
+    var int i := 0
+
+    for scanner.Scan() {
+        fmt.Println("Line:", scanner.Text())
+
+        temp := strings.Split(scanner.Text(), " ")
+
+        payees[i].Wallet := temp[0]
+        payees[i].Share := temp[1]
+        payees[i].Pay := ((payees[i].Share / collateral) * customerpay)
+        fmt.Println(payees[i].Wallet payees[i].Share payees[i].Pay)
+
+        ++i
 
     }
 }
@@ -41,6 +61,9 @@ func parse() {
 
 
     func main() {
+
+
+
 
     datafile, err := ioutil.ReadFile("payconfig.dat")
     check(err)
@@ -66,6 +89,17 @@ func parse() {
     fmt.Println(str)
 
     fmt.Println()
+
+    var int64 balance:= 37.5
+
+
+
+    collateral := jsondata.collateral
+    balance := balance()
+    adminpay:= (balance * 0.1)
+    customerpay:= balance - adminpay
+
+
 
     parse()
 
