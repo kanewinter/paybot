@@ -8,8 +8,6 @@ package main
         //"os"
     )
 
-    func Unmarshal(data []byte, v interface{}) error
-
     func check(e error) {
         if e != nil {
             panic(e)
@@ -23,8 +21,11 @@ package main
     fmt.Print(string(datafile))
 
     var jsondata interface{}
-    jsondata, err := json.Unmarshal(datafile, &jsondata)
+    json.Unmarshal(datafile, &jsondata)
     fmt.Print(interface{}(jsondata))
 
+    m := jsondata.(map[string]interface{})
+    payee := m.[]interface{}
+    fmt.Println(payee)
 
     }
