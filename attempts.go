@@ -69,10 +69,12 @@ package main
     func createcommand() {
         for k := range payments {
       	    fmt.Println(payments[k].Wallet, payments[k].Pay)
-      	    paycommand.WriteString(payments[k].Wallet)
+      	    tempwallet:= string(payments[k].Wallet)
+      	    paycommand.WriteString(tempwallet)
       	    paycommand.WriteString("\":")
-      	    paycommand.WriteString(payments[k].Pay)
-      	    if payments[k+1] {
+      	    temppay:= string(payments[k].Pay)
+      	    paycommand.WriteString(temppay)
+      	    if payments[k+1].Wallet {
       	    paycommand.WriteString(",\"")
       	    }
       	}
