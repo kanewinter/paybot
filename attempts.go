@@ -101,7 +101,7 @@ package main
         //adminpercentage= jsondata.adminpercentage
         var adminpercentage= 0.1
         var adminpay float64 = float64(balance * adminpercentage)
-        customerpay float64 = float64(balance - adminpay)
+        customerpay = float64(balance - adminpay)
 
         parse()
 
