@@ -26,9 +26,9 @@ package main
     }
 
     type Payee struct {
-        Wallet string
-        Share   float64
-        Pay     float64
+        Wallet     string
+        Share     float64
+        Pay       float64
     }
 
     func parse() {
@@ -48,11 +48,12 @@ package main
             payees := new(Payee)
             payees.Wallet= temp[0]
 
-            payees.Share, err= strconv.ParseInt(temp[1], 10, 64)
+            tempshare, err:= strconv.ParseInt(temp[1], 10, 64)
                 if err == nil {
-                    fmt.Println(payees.Share)
+                    fmt.Println(tempshare)
                 }
 
+            payees.Share= float64(tempshare)
             payees.Pay= float64((payees.Share / collateral) * customerpay)
             fmt.Println(payees.Wallet, payees.Share, payees.Pay)
             payments = append(payments, payees)
