@@ -91,13 +91,12 @@ package main
 
         fmt.Println()
 
-        var int64 balance := 37.5
+        balance= 37.5
 
 
 
         collateral= 1000 //jsondata.collateral
         // balance= balance()
-        balance= 60
         //adminpercentage= jsondata.adminpercentage
         adminpercentage= 0.1
         adminpay= (balance * adminpercentage)
