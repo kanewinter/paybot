@@ -43,7 +43,7 @@ package main
         scanner := bufio.NewScanner(file)
 
         for scanner.Scan() {
-            fmt.Println("Line:", scanner.Text())
+            //fmt.Println("Line:", scanner.Text())
 
             temp := strings.Split(scanner.Text(), " ")
 
@@ -52,7 +52,7 @@ package main
 
             tempshare, err:= strconv.ParseInt(temp[1], 10, 64)
                 if err == nil {
-                    fmt.Println(tempshare)
+                    //fmt.Println(tempshare)
                 }
 
             payees.Share= float64(tempshare)
@@ -61,20 +61,21 @@ package main
             payments = append(payments, payees)
 
         }
-	for k := range payments {
-	fmt.Println(payments[k].Wallet, payments[k].Share, payments[k].Pay)
-	}
+	//for k := range payments {
+	//fmt.Println(payments[k].Wallet, payments[k].Share, payments[k].Pay)
+	//}
     }
 
     func createcommand() {
         for k := range payments {
-      	    fmt.Println(payments[k].Wallet, payments[k].Pay)
+      	    //fmt.Println(payments[k].Wallet, payments[k].Pay)
       	    tempwallet:= string(payments[k].Wallet)
       	    paycommand.WriteString(tempwallet)
       	    paycommand.WriteString("\":")
-      	    temppay := strconv.FormatFloat(payments[k].Pay, 'E', -1, 64)
+      	    temppay := strconv.FormatFloat(payments[k].Pay, 'f', -1, 64)
       	    paycommand.WriteString(temppay)
-      	    if payments[k+1].Wallet != "" {
+
+      	    if len(payments) == k {
       	    paycommand.WriteString(",\"")
       	    }
       	}
