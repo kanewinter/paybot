@@ -61,6 +61,9 @@ package main
             i= i+1
 
         }
+	for k := range payments {
+	fmt.Println(payments[k].Wallet, payments[k].Share, payments[k].Pay)
+	}
     }
 
 
