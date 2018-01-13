@@ -10,6 +10,7 @@ package main
         "os"
         "strings"
         "strconv"
+        "bytes"
     )
 
     var collateral float64
@@ -18,6 +19,8 @@ package main
     var customerpay float64
     var balance float64
     var payments= []*Payee{}
+    var paycommand bytes.Buffer
+    var payoutacct string
 
     func check(e error) {
         if e != nil {
@@ -33,12 +36,11 @@ package main
 
     func parse() {
         // Open file and create scanner on top of it
-        file, err := os.Open("test.txt")
+        file, err := os.Open("customerdata.dat")
         if err != nil {
             log.Fatal(err)
         }
         scanner := bufio.NewScanner(file)
-        i:= 0
 
         for scanner.Scan() {
             fmt.Println("Line:", scanner.Text())
@@ -58,13 +60,26 @@ package main
             fmt.Println(payees.Wallet, payees.Share, payees.Pay)
             payments = append(payments, payees)
 
-            i= i+1
-
         }
 	for k := range payments {
 	fmt.Println(payments[k].Wallet, payments[k].Share, payments[k].Pay)
 	}
     }
+
+    func createcommand() {
+        for k := range payments {
+      	    fmt.Println(payments[k].Wallet, payments[k].Pay)
+      	    paycommand.WriteString(payments[k].Wallet)
+      	    paycommand.WriteString("\":")
+      	    paycommand.WriteString(payments[k].Pay)
+      	    if payments[k+1] {
+      	    paycommand.WriteString(",\"")
+      	    }
+      	}
+      	paycommand.WriteString("}"")
+        fmt.Println(paycommand.String())
+    }
+
 
 
     func main() {
@@ -72,31 +87,19 @@ package main
 
         datafile, err := ioutil.ReadFile("payconfig.dat")
         check(err)
-        fmt.Println(string(datafile))
-        fmt.Println()
+        //fmt.Println(string(datafile))
 
         var jsondata interface{}
         json.Unmarshal(datafile, &jsondata)
-        fmt.Println(interface{}(jsondata))
-        fmt.Println()
+        //fmt.Println(interface{}(jsondata))
+        //fmt.Println()
 
-        textfile, err := ioutil.ReadFile("payconfig.dat")
-            if err != nil {
-                fmt.Print(err)
-            }
-
-        fmt.Println("print bytes")
-        fmt.Println(textfile) // print the content as 'bytes'
-        fmt.Println()
-
-        fmt.Println("string")
-        str := string(textfile) // convert content to a 'string'
-        fmt.Println(str)
-
-        fmt.Println()
 
         var balance= 37.5
-
+        var payoutacct= "BP&C Payout" //jsondata.payoutacct
+        paycommand.WriteString("sendmany ")
+        paycommand.WriteString(payoutacct)
+        paycommand.WriteString(" "{\"")
 
 
         collateral= 1000 //jsondata.collateral
@@ -107,6 +110,7 @@ package main
         customerpay = float64(balance - adminpay)
 
         parse()
+        createcommand()
 
 
     }
