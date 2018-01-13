@@ -53,7 +53,7 @@ package main
                     fmt.Println(payees.Share)
                 }
 
-            payees.Pay= ((payees.Share / collateral) * customerpay)
+            payees.Pay= float64((payees.Share / collateral) * customerpay)
             fmt.Println(payees.Wallet, payees.Share, payees.Pay)
             payments = append(payments, payees)
 
@@ -91,16 +91,16 @@ package main
 
         fmt.Println()
 
-        balance= 37.5
+        var balance= 37.5
 
 
 
         collateral= 1000 //jsondata.collateral
         // balance= balance()
         //adminpercentage= jsondata.adminpercentage
-        adminpercentage= 0.1
-        adminpay= (balance * adminpercentage)
-        customerpay= balance - adminpay
+        var adminpercentage= 0.1
+        var adminpay float64 = float64(balance * adminpercentage)
+        var customerpay float64 = float64(balance - adminpay)
 
         parse()
 
