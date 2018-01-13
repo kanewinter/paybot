@@ -12,12 +12,12 @@ package main
         "strconv"
     )
 
-    var collateral int
+    var collateral int64
     var adminpercentage int64
     var adminpay int64
     var customerpay int64
-    payments := []*Payee{}
-
+    var balance int64
+    var payments= []*Payee{}
 
     func check(e error) {
         if e != nil {
@@ -27,7 +27,7 @@ package main
 
     type Payee struct {
         Wallet string
-        Share     int
+        Share   int64
         Pay     int64
     }
 
@@ -48,7 +48,7 @@ package main
             payees := new(Payee)
             payees.Wallet= temp[0]
 
-            payees.Share, err := strconv.ParseInt(temp[1], 10, 64)
+            payees.Share, err= strconv.ParseInt(temp[1], 10, 64)
                 if err == nil {
                     fmt.Println(payees.Share)
                 }
@@ -91,15 +91,17 @@ package main
 
         fmt.Println()
 
-        var int64 balance= 37.5
+        var int64 balance := 37.5
 
 
 
         collateral= 1000 //jsondata.collateral
-        // var int64 balance= balance()
-        var int64 adminpercentage= jsondata.adminpercentage
-        var int64 adminpay= (balance * adminpercentage)
-        var int64 customerpay= balance - adminpay
+        // balance= balance()
+        balance= 60
+        //adminpercentage= jsondata.adminpercentage
+        adminpercentage= 0.1
+        adminpay= (balance * adminpercentage)
+        customerpay= balance - adminpay
 
         parse()
 
