@@ -78,7 +78,7 @@ package main
       	    paycommand.WriteString(",\"")
       	    }
       	}
-      	paycommand.WriteString("}"")
+      	paycommand.WriteString("}\"")
         fmt.Println(paycommand.String())
     }
 
@@ -101,7 +101,7 @@ package main
         var payoutacct= "BP&C Payout" //jsondata.payoutacct
         paycommand.WriteString("sendmany ")
         paycommand.WriteString(payoutacct)
-        paycommand.WriteString(" "{\"")
+        paycommand.WriteString("\ "{\"")
 
 
         collateral= 1000 //jsondata.collateral
