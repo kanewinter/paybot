@@ -12,11 +12,11 @@ package main
         "strconv"
     )
 
-    var collateral int64
-    var adminpercentage int64
-    var adminpay int64
-    var customerpay int64
-    var balance int64
+    var collateral float64
+    var adminpercentage float64
+    var adminpay float64
+    var customerpay float64
+    var balance float64
     var payments= []*Payee{}
 
     func check(e error) {
@@ -27,8 +27,8 @@ package main
 
     type Payee struct {
         Wallet string
-        Share   int64
-        Pay     int64
+        Share   float64
+        Pay     float64
     }
 
     func parse() {
