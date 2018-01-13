@@ -86,7 +86,7 @@ func parse(payments) {
 
 
     var int collateral= 1000 //jsondata.collateral
-    var int64 balance= balance()
+    // var int64 balance= balance()
     var int64 adminpercentage= jsondata.adminpercentage
     var int64 adminpay= (balance * adminpercentage)
     var int64 customerpay= balance - adminpay
