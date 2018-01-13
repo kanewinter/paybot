@@ -57,7 +57,7 @@ package main
 
             payees.Share= float64(tempshare)
             payees.Pay= float64((payees.Share / collateral) * customerpay)
-            fmt.Println(payees.Wallet, payees.Share, payees.Pay)
+            //fmt.Println(payees.Wallet, payees.Share, payees.Pay)
             payments = append(payments, payees)
 
         }
@@ -71,12 +71,12 @@ package main
       	    //fmt.Println(payments[k].Wallet, payments[k].Pay)
       	    tempwallet:= string(payments[k].Wallet)
       	    paycommand.WriteString(tempwallet)
-      	    paycommand.WriteString("\":")
+      	    paycommand.WriteString("\\\":")
       	    temppay := strconv.FormatFloat(payments[k].Pay, 'f', -1, 64)
       	    paycommand.WriteString(temppay)
 
-      	    if len(payments) == k {
-      	    paycommand.WriteString(",\"")
+      	    if (k+1) < len(payments) {
+      	    paycommand.WriteString(",\\\"")
       	    }
       	}
       	paycommand.WriteString("}\"")
@@ -101,9 +101,10 @@ package main
         var balance= 37.5
         var payoutacct= "BP&C Payout" //jsondata.payoutacct
         paycommand.WriteString("sendmany ")
-        paycommand.WriteString(payoutacct)
-        paycommand.WriteString("" "{\"")
-
+	//fmt.Fprintf(&paycommand, "\"%d\" \"{\\\"", payoutacct)
+	fmt.Fprintf(&paycommand, "\"")
+	paycommand.WriteString(payoutacct)
+	fmt.Fprintf(&paycommand, "\" \"{\\\"")
 
         collateral= 1000 //jsondata.collateral
         // balance= balance()
