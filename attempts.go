@@ -72,9 +72,9 @@ package main
       	    tempwallet:= string(payments[k].Wallet)
       	    paycommand.WriteString(tempwallet)
       	    paycommand.WriteString("\":")
-      	    temppay:= string(payments[k].Pay)
+      	    temppay := strconv.FormatFloat(payments[k].Pay, 'E', -1, 64)
       	    paycommand.WriteString(temppay)
-      	    if payments[k+1].Wallet {
+      	    if payments[k+1].Wallet != nil {
       	    paycommand.WriteString(",\"")
       	    }
       	}
@@ -101,7 +101,7 @@ package main
         var payoutacct= "BP&C Payout" //jsondata.payoutacct
         paycommand.WriteString("sendmany ")
         paycommand.WriteString(payoutacct)
-        paycommand.WriteString("\ "{\"")
+        paycommand.WriteString("\"\ \"\{\\\"")
 
 
         collateral= 1000 //jsondata.collateral
