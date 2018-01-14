@@ -20,6 +20,7 @@ package main
     var balance float64
     var payments= []*Payee{}
     var paycommand bytes.Buffer
+    var result bytes.Buffer
     var payoutacct string
 
     func check(e error) {
@@ -80,7 +81,7 @@ package main
       	    }
       	}
       	paycommand.WriteString("}\"")
-        fmt.Println(paycommand.String())
+
     }
 
 
@@ -101,10 +102,10 @@ package main
         var balance= 37.5
         var payoutacct= "BP&C Payout" //jsondata.payoutacct
         paycommand.WriteString("sendmany ")
-	//fmt.Fprintf(&paycommand, "\"%d\" \"{\\\"", payoutacct)
-	fmt.Fprintf(&paycommand, "\"")
-	paycommand.WriteString(payoutacct)
-	fmt.Fprintf(&paycommand, "\" \"{\\\"")
+
+	    fmt.Fprintf(&paycommand, "\"")
+	    paycommand.WriteString(payoutacct)
+	    fmt.Fprintf(&paycommand, "\" \"{\\\"")
 
         collateral= 1000 //jsondata.collateral
         // balance= balance()
@@ -116,5 +117,18 @@ package main
         parse()
         createcommand()
 
+        t := time.Now().UTC()
+        result.WriteString("Payout Report %t"\n, t)
+        result.WriteString(payoutacct balance "\n")
+        result.WriteString("Admin Pay " adminpay)
+        result.WriteString("\n)
+        result.WriteString("Wallets                       Share               Payout")
+        for k := range payments {
+        	fmt.Println(&result, payments[k].Wallet, payments[k].Share, payments[k].Pay)
+        	}
+        result.WriteString("Pay Command to be Used"
+        result.WriteString(paycommand)
 
+        fmt.Println(result.String())
+        //fmt.Println(paycommand.String())
     }
