@@ -96,23 +96,28 @@ package main
     func notification() {
 fmt.Println("Sending Email")
 
-   var apikey string="cb9872db45f62a1e4b67ded1736d85a1:b211992104c42942713d8c4cacad7ad2"
+   var apikey="cb9872db45f62a1e4b67ded1736d85a1:b211992104c42942713d8c4cacad7ad2"
 
 
- var mailcommand string= fmt.Sprintf("curl -s -X POST --user %b https://api.mailjet.com/v3/send -H 'Content-Type: application/json' -d '{ \"FromEmail\":\"pilot@mailjet.com\", \"FromName\":\"Mailjet Pilot\", \"Subject\":\"Your email flight plan!\", \"Text-part\":\"Dear passenger, welcome to Mailjet! May the delivery force be with you!\", \"Html-part\":\"<h3>Dear passenger, welcome to Mailjet!</h3><br />May the delivery force be with you!\", \"Recipients\":[ { \"Email\": \"kanewinter@gmail.com\" } ] }'", apikey)
+ var mailcommand string= fmt.Sprintf("-x /usr/bin/curl") //-s -X POST --user %s https://api.mailjet.com/v3/send -H 'Content-Type: application/json' -d '{ \"FromEmail\":\"paybot@kane.ventures\", \"FromName\":\"Mailjet Pilot\", \"Subject\":\"Test4\", \"Text-part\":\"Dear passenger, welcome to Mailjet! May the delivery force be with you!\", \"Html-part\":\"<h3>Dear passenger, welcome to Mailjet!</h3><br />May the delivery force be with you!\", \"Recipients\":[ { \"Email\": \"kanewinter@gmail.com\" } ] }'", apikey)
 
-	fmt.Println(mailcommand)
+mailcmd := []string{mailcommand}
 
-	   cmd := exec.Command(mailcommand)
+fmt.Println(apikey)
+	//fmt.Println(mailcmd)
+
+	   cmd := exec.Command("/usr/bin/sh", mailcmd...)
            	var out bytes.Buffer
            	cmd.Stdout = &out
            	err := cmd.Run()
+		fmt.Println(cmd.Output)
+		fmt.Println(cmd.Stdout)
            	if err != nil {
-           		log.Fatal(err)
+           		fmt.Println(err.Error)
            	}
            	result.WriteString(out.String())
 
-
+fmt.Println("mail sent?")
 
     }
 
@@ -127,6 +132,11 @@ fmt.Println("Sending Email")
         json.Unmarshal(datafile, &jsondata)
         //fmt.Println(interface{}(jsondata))
         //fmt.Println()
+
+fmt.Println("*************")
+fmt.Println("*************")
+fmt.Println("*************")
+fmt.Println("*************")
 
 
         var balance float64 = 122.5
@@ -148,6 +158,11 @@ fmt.Println("Sending Email")
 
         parse()
         createcommand(adminpay)
+
+fmt.Println("*************")
+fmt.Println("*************")
+fmt.Println("*************")
+fmt.Println("*************")
 
         var checkpayments float64
         for k := range payments {
@@ -177,6 +192,12 @@ fmt.Println("Sending Email")
         result.WriteString("\n")
         result.WriteString("Wallets                             Share    Payout\n")
 
+fmt.Println("*************")
+fmt.Println("*************")
+fmt.Println("*************")
+fmt.Println("*************")
+
+
         for k := range payments {
 		    result.WriteString(payments[k].Wallet)
 		    result.WriteString("    ")
@@ -195,17 +216,26 @@ fmt.Println("Sending Email")
 
         var paycmd string = paycommand.String()
 	    fmt.Println(paycmd)
+
+fmt.Println("*************")
+fmt.Println("*************")
+fmt.Println("*************")
+fmt.Println("*************")
+
         if payabort != true {
             cmd := exec.Command("gobyte-cli", "paycmd")
         	var out bytes.Buffer
         	cmd.Stdout = &out
         	err := cmd.Run()
         	if err != nil {
-        		log.Fatal(err)
+        		//log.Fatal(err)
         	}
         	result.WriteString(out.String())
         }
-
+fmt.Println("*************")
+fmt.Println("*************")
+fmt.Println("*************")
+fmt.Println("*************")
         if (payabort == true) || (err != nil) {
             result.WriteString("Payout Aborted or failed")
             result.WriteString("payabort variable is: ")
@@ -215,6 +245,11 @@ fmt.Println("Sending Email")
             result.WriteString(err.Error())
             result.WriteString("\n")
          }
+
+fmt.Println("*************")
+fmt.Println("*************")
+fmt.Println("*************")
+fmt.Println("*************")
 
          notification()
 
