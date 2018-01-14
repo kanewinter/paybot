@@ -113,6 +113,7 @@ package main
     	)
     	if err != nil {
     		log.Fatal(err)
+		fmt.Println(err.Error())
     	}
     }
 
