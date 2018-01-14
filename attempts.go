@@ -13,6 +13,7 @@ package main
         "strconv"
         "bytes"
 	    "time"
+	"net/smtp"
     )
 
     var collateral float64
@@ -93,23 +94,22 @@ package main
 
     }
 
-    func notification()
-    {
+    func notification() {
     	// Set up authentication information.
     	auth := smtp.PlainAuth(
     		"",
     		"kane4ventures@gmail.com", //user
-    		"password",   //password
-    		"mail.google.com", //mail server
+    		"oG?!XxxKc<75H7__=p_*;E^aw7eoX{Z^qxd-z+6Ze;BCh_=r",   //password
+    		"smtp.gmail.com", //mail server
     	)
     	// Connect to the server, authenticate, set the sender and recipient,
     	// and send the email all in one step.
     	err := smtp.SendMail(
-    		"mail.google.com:25",  //mail server
+    		"smtp.gmail.com:25",  //mail server
     		auth,
     		"kane4ventures@gmail.com",  //sender
     		[]string{"kane4ventures@gmail.com"},  ///recipient
-    		[]byte(result),  //email body
+    		[]byte(result.Bytes()),  //email body
     	)
     	if err != nil {
     		log.Fatal(err)
@@ -194,6 +194,7 @@ package main
         fmt.Println(result.String())
 
         var paycmd string = paycommand.String()
+	fmt.Println(paycmd)
         if payabort != true {
             cmd := exec.Command("gobyte-cli", "paycmd")
         	var out bytes.Buffer
@@ -205,13 +206,13 @@ package main
         	result.WriteString(out.String())
         }
 
-        if payabort = true || err != nil {
+        if (payabort == true) || (err != nil) {
             result.WriteString("Payout Aborted or failed")
             result.WriteString("payabort variable is: ")
-            result.WriteString(payabort)
+            result.WriteString(strconv.FormatBool(payabort))
             result.WriteString("\n")
-            result.WriteString("err vaiable is: ")
-            result.WriteString(err)
+            result.WriteString("err variable is: ")
+            result.WriteString(err.Error())
             result.WriteString("\n")
          }
 
