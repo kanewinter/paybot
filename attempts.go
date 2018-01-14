@@ -69,12 +69,11 @@ package main
 	//}
     }
 
-    func createcommand() {
+    func createcommand(adminpay float64) {
 
         paycommand.WriteString(adminwallet)
         paycommand.WriteString("\\\":")
-        tempadminpay := strconv.FormatFloat(payments[k].Pay, 'f', -1, 64)
-        paycommand.WriteString(tempadminpay)
+	paycommand.WriteString(strconv.FormatFloat(adminpay, 'f', -1, 64))
         paycommand.WriteString(",\\\"")
 
         for k := range payments {
@@ -125,7 +124,7 @@ package main
         customerpay = float64(balance - adminpay)
 
         parse()
-        createcommand()
+        createcommand(adminpay)
 
         result.WriteString("Payout Report ")
 	    result.WriteString(time.Now().Format(time.RFC850))
