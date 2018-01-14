@@ -4,11 +4,29 @@ package main
     import (
         "fmt"
         "io/ioutil"
+        "os/exec"
         "encoding/json"
+        "bufio"
+        "log"
         "os"
+        "strings"
+        "strconv"
+        "bytes"
+	    "time"
+	"net/smtp"
     )
 
-    func Unmarshal(data []byte, v interface{}) error
+    var collateral float64
+    var adminpercentage float64
+    var adminpay float64
+    var customerpay float64
+    var balance float64
+    var payments= []*Payee{}
+    var paycommand bytes.Buffer
+    var result bytes.Buffer
+    var payoutacct string
+    var adminwallet string
+    var payabort bool = false
 
     func check(e error) {
         if e != nil {
@@ -16,112 +34,189 @@ package main
         }
     }
 
-    func balance() {
-    	if out, err := exec.Command(/opt/gobyte/gobyte-cli getbalance).Output(); err == nil {
-    		log.Info("Balance is " out.Output)
+    type Payee struct {
+        Wallet     string
+        Share     float64
+        Pay       float64
+    }
+
+    func parse() {
+        // Open file and create scanner on top of it
+        file, err := os.Open("customerdata.dat")
+        if err != nil {
+            log.Fatal(err)
+        }
+        scanner := bufio.NewScanner(file)
+
+        for scanner.Scan() {
+            //fmt.Println("Line:", scanner.Text())
+
+            temp := strings.Split(scanner.Text(), " ")
+
+            payees := new(Payee)
+            payees.Wallet= temp[0]
+
+            tempshare, err:= strconv.ParseInt(temp[1], 10, 64)
+                if err == nil {
+                    //fmt.Println(tempshare)
+                }
+
+            payees.Share= float64(tempshare)
+            payees.Pay= float64((payees.Share / collateral) * customerpay)
+            //fmt.Println(payees.Wallet, payees.Share, payees.Pay)
+            payments = append(payments, payees)
+
+        }
+	//for k := range payments {
+	//fmt.Println(payments[k].Wallet, payments[k].Share, payments[k].Pay)
+	//}
+    }
+
+    func createcommand(adminpay float64) {
+
+        paycommand.WriteString(adminwallet)
+        paycommand.WriteString("\\\":")
+	    paycommand.WriteString(strconv.FormatFloat(adminpay, 'f', -1, 64))
+        paycommand.WriteString(",\\\"")
+
+        for k := range payments {
+      	    tempwallet:= string(payments[k].Wallet)
+      	    paycommand.WriteString(tempwallet)
+      	    paycommand.WriteString("\\\":")
+      	    temppay := strconv.FormatFloat(payments[k].Pay, 'f', -1, 64)
+      	    paycommand.WriteString(temppay)
+
+      	    if (k+1) < len(payments) {
+      	    paycommand.WriteString(",\\\"")
+      	    }
+      	}
+      	paycommand.WriteString("}\"")
+
+    }
+
+    func notification() {
+    	// Set up authentication information.
+    	auth := smtp.PlainAuth(
+    		"",
+    		"kane4ventures@gmail.com", //user
+    		"oG?!XxxKc<75H7__=p_*;E^aw7eoX{Z^qxd-z+6Ze;BCh_=r",   //password
+    		"smtp.gmail.com", //mail server
+    	)
+    	// Connect to the server, authenticate, set the sender and recipient,
+    	// and send the email all in one step.
+    	err := smtp.SendMail(
+    		"smtp.gmail.com:25",  //mail server
+    		auth,
+    		"kane4ventures@gmail.com",  //sender
+    		[]string{"kane4ventures@gmail.com"},  ///recipient
+    		[]byte(result.Bytes()),  //email body
+    	)
+    	if err != nil {
+    		log.Fatal(err)
+		fmt.Println(err.Error())
     	}
     }
 
-    func paycommand() {
-        for i := range payoutdatawallet
+    func main() {
 
+
+        datafile, err := ioutil.ReadFile("payconfig.dat")
+        check(err)
+        //fmt.Println(string(datafile))
+
+        var jsondata interface{}
+        json.Unmarshal(datafile, &jsondata)
+        //fmt.Println(interface{}(jsondata))
+        //fmt.Println()
+
+
+        var balance float64 = 122.5
+        var payoutacct= "BP&C Payout" //jsondata.payoutacct
+        paycommand.WriteString("sendmany ")
+
+	    fmt.Fprintf(&paycommand, "\"")
+	    paycommand.WriteString(payoutacct)
+	    fmt.Fprintf(&paycommand, "\" \"{\\\"")
+
+        collateral= 1000 //jsondata.collateral
+        // balance= balance()
+        //adminpercentage= jsondata.adminpercentage
+        //adminwallet= jsondata.adminwallet
+        adminwallet= "dfhsdfgdfgnfjdsgdfsgkmlsmkgrimnn"
+        var adminpercentage= 0.1
+        var adminpay float64 = float64(balance * adminpercentage)
+        customerpay = float64(balance - adminpay)
+
+        parse()
+        createcommand(adminpay)
+
+        var checkpayments float64
+        for k := range payments {
+            checkpayments= checkpayments + payments[k].Pay
+            }
+        if checkpayments > customerpay {
+            log.Fatal(checkpayments)
+            payabort= true
+        }
+
+        if (checkpayments + adminpay) > balance {
+                    log.Fatal(balance)
+                    payabort= true
         }
 
 
-    datafile, err := ioutil.ReadFile("payconfig.dat")
-    check(err)
-    fmt.Print(string(datafile))
 
-    var jsondata interface{}
-    err := json.Unmarshal(datafile, &jsondata)
+        result.WriteString("Payout Report ")
+	    result.WriteString(time.Now().Format(time.RFC850))
+	    result.WriteString("\n")
+        result.WriteString(payoutacct)
+	    result.WriteString(" ")
+	    result.WriteString(strconv.FormatFloat(balance, 'f', -1, 64))
+	    result.WriteString("\n")
+        result.WriteString("Admin Pay ")
+	    result.WriteString(strconv.FormatFloat(adminpay, 'f', -1, 64))
+        result.WriteString("\n")
+        result.WriteString("Wallets                             Share    Payout\n")
 
-    m := jsondata.(map[string]interface{})
-    payee := m.[]interface{}
-    fmt.Println(payee)
-
-    var payoutdatawallet []string
-    var payoutdatashare []int
-    var i int
-    i := 0
-
-    for k, v := range payee {
-
-        payoutdatashare[i] := v
-        payoutdatawallet[i] : = k
-        ++i
-
-    }
-
-
-
-    var data map[string]interface{}
-
-    if err := json.Unmarshal(datafil, &data); err != nil {
-        panic(err)
-    }
-    fmt.Println(data)
-
-    collateral := data["collateral"].(float64)
-    fmt.Println(collateral)
-
-    customerdata := data["customerdata"].([]interface{})
-    array payoutwallets
-    array payoutamounts
-    for each customerdata
-    payoutwallets[i] := customerdata[i].(string)
-    payoutamounts[i] := customerdata[i].
-
-
-
-
-    fmt.Println(str1)
-
-
-for k, v := range m {
-    switch vv := v.(type) {
-    case string:
-        fmt.Println(k, "is string", vv)
-    case float64:
-        fmt.Println(k, "is float64", vv)
-    case []interface{}:
-        fmt.Println(k, "is an array:")
-        for i, u := range vv {
-            fmt.Println(i, u)
+        for k := range payments {
+		    result.WriteString(payments[k].Wallet)
+		    result.WriteString("    ")
+		    result.WriteString(strconv.FormatFloat(payments[k].Share, 'f', -1, 64))
+		    result.WriteString("      ")
+		    result.WriteString(strconv.FormatFloat(payments[k].Pay, 'f', -1, 64))
+		    result.WriteString("\n")
         }
-    default:
-        fmt.Println(k, "is of a type I don't know how to handle")
-    }
+
+	    result.WriteString("\n")
+        result.WriteString("Pay Command to be Used \n")
+	    result.WriteString(paycommand.String())
+	    result.WriteString("\n")
+
+        fmt.Println(result.String())
+
+        var paycmd string = paycommand.String()
+	    fmt.Println(paycmd)
+        if payabort != true {
+            cmd := exec.Command("gobyte-cli", "paycmd")
+        	var out bytes.Buffer
+        	cmd.Stdout = &out
+        	err := cmd.Run()
+        	if err != nil {
+        		log.Fatal(err)
+        	}
+        	result.WriteString(out.String())
+        }
+
+        if (payabort == true) || (err != nil) {
+            result.WriteString("Payout Aborted or failed")
+            result.WriteString("payabort variable is: ")
+            result.WriteString(strconv.FormatBool(payabort))
+            result.WriteString("\n")
+            result.WriteString("err variable is: ")
+            result.WriteString(err.Error())
+            result.WriteString("\n")
+         }
+
+         notification()
+
 }
-
-
-
-
-
-
-    places = append(places, loc)
-
-    // Create another struct.
-    loc = new(Location)
-    loc.x = 5
-    loc.y = 8
-    loc.valid = true
-
-    places = append(places, loc)
-
-    // Loop over all indexes in the slice.
-    // ... Print all struct data.
-    for i := range(places) {
-        place := places[i]
-        fmt.Println("Location:", place)
-    }
-
-
-
-
-total=`/opt/gobyte/gobyte-cli getbalance`
-
-admin=$( bc -l <<<"0.10*$total" )
-
-customer=$( bc -l <<<"$total-$admin" )
-
-echo "/opt/gobyte/gobyte-cli sendmany "kv" "{\"GfvkGVFKSCPRpdfTXRgATxvyxCATzpj3LE\":$admin,\"GfeJJFCU7qULYNXk3pJ3d56pfazYjKCDS8\":$customer}""
