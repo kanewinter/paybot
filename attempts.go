@@ -93,7 +93,28 @@ package main
 
     }
 
-
+    func notification()
+    {
+    	// Set up authentication information.
+    	auth := smtp.PlainAuth(
+    		"",
+    		"kane4ventures@gmail.com", //user
+    		"password",   //password
+    		"mail.google.com", //mail server
+    	)
+    	// Connect to the server, authenticate, set the sender and recipient,
+    	// and send the email all in one step.
+    	err := smtp.SendMail(
+    		"mail.google.com:25",  //mail server
+    		auth,
+    		"kane4ventures@gmail.com",  //sender
+    		[]string{"kane4ventures@gmail.com"},  ///recipient
+    		[]byte(result),  //email body
+    	)
+    	if err != nil {
+    		log.Fatal(err)
+    	}
+    }
 
     func main() {
 
@@ -168,6 +189,7 @@ package main
 	    result.WriteString("\n")
         result.WriteString("Pay Command to be Used \n")
 	    result.WriteString(paycommand.String())
+	    result.WriteString("\n")
 
         fmt.Println(result.String())
 
@@ -180,7 +202,19 @@ package main
         	if err != nil {
         		log.Fatal(err)
         	}
-        	fmt.Printf(out.String())
+        	result.WriteString(out.String())
         }
+
+        if payabort = true || err != nil {
+            result.WriteString("Payout Aborted or failed")
+            result.WriteString("payabort variable is: ")
+            result.WriteString(payabort)
+            result.WriteString("\n")
+            result.WriteString("err vaiable is: ")
+            result.WriteString(err)
+            result.WriteString("\n")
+         }
+
+         notification()
 
 }
