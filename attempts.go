@@ -25,7 +25,7 @@ package main
     var result bytes.Buffer
     var payoutacct string
     var adminwallet string
-    var payabort bool = fales
+    var payabort bool = false
 
     func check(e error) {
         if e != nil {
@@ -171,8 +171,9 @@ package main
 
         fmt.Println(result.String())
 
+        var paycmd string = paycommand.String()
         if payabort != true {
-            cmd := exec.Command("paycommand.String()")
+            cmd := exec.Command("gobyte-cli", "paycmd")
         	var out bytes.Buffer
         	cmd.Stdout = &out
         	err := cmd.Run()
