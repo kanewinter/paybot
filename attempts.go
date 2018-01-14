@@ -13,7 +13,6 @@ package main
         "strconv"
         "bytes"
 	    "time"
-	"net/smtp"
     )
 
     var collateral float64
@@ -95,26 +94,26 @@ package main
     }
 
     func notification() {
-    	// Set up authentication information.
-    	auth := smtp.PlainAuth(
-    		"",
-    		"kane4ventures@gmail.com", //user
-    		"oG?!XxxKc<75H7__=p_*;E^aw7eoX{Z^qxd-z+6Ze;BCh_=r",   //password
-    		"smtp.gmail.com", //mail server
-    	)
-    	// Connect to the server, authenticate, set the sender and recipient,
-    	// and send the email all in one step.
-    	err := smtp.SendMail(
-    		"smtp.gmail.com:25",  //mail server
-    		auth,
-    		"kane4ventures@gmail.com",  //sender
-    		[]string{"kane4ventures@gmail.com"},  ///recipient
-    		[]byte(result.Bytes()),  //email body
-    	)
-    	if err != nil {
-    		log.Fatal(err)
-		fmt.Println(err.Error())
-    	}
+fmt.Println("Sending Email")
+
+   var apikey string="cb9872db45f62a1e4b67ded1736d85a1:b211992104c42942713d8c4cacad7ad2"
+
+
+ var mailcommand string= fmt.Sprintf("curl -s -X POST --user %b https://api.mailjet.com/v3/send -H 'Content-Type: application/json' -d '{ \"FromEmail\":\"pilot@mailjet.com\", \"FromName\":\"Mailjet Pilot\", \"Subject\":\"Your email flight plan!\", \"Text-part\":\"Dear passenger, welcome to Mailjet! May the delivery force be with you!\", \"Html-part\":\"<h3>Dear passenger, welcome to Mailjet!</h3><br />May the delivery force be with you!\", \"Recipients\":[ { \"Email\": \"kanewinter@gmail.com\" } ] }'", apikey)
+
+	fmt.Println(mailcommand)
+
+	   cmd := exec.Command(mailcommand)
+           	var out bytes.Buffer
+           	cmd.Stdout = &out
+           	err := cmd.Run()
+           	if err != nil {
+           		log.Fatal(err)
+           	}
+           	result.WriteString(out.String())
+
+
+
     }
 
     func main() {
