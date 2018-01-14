@@ -4,6 +4,7 @@ package main
     import (
         "fmt"
         "io/ioutil"
+        "os/exec"
         "encoding/json"
         "bufio"
         "log"
@@ -11,7 +12,7 @@ package main
         "strings"
         "strconv"
         "bytes"
-	"time"
+	    "time"
     )
 
     var collateral float64
@@ -73,7 +74,7 @@ package main
 
         paycommand.WriteString(adminwallet)
         paycommand.WriteString("\\\":")
-	paycommand.WriteString(strconv.FormatFloat(adminpay, 'f', -1, 64))
+	    paycommand.WriteString(strconv.FormatFloat(adminpay, 'f', -1, 64))
         paycommand.WriteString(",\\\"")
 
         for k := range payments {
@@ -126,6 +127,22 @@ package main
         parse()
         createcommand(adminpay)
 
+        var checkpayments float64
+        for k := range payments {
+            checkpayments= checkpayments + payments[k].Pay
+            }
+        if checkpayments > customerpay {
+            log.Fatal(checkpayments)
+            var payabort bool = true
+        }
+
+        if (checkpayments + adminpay) > balance {
+                    log.Fatal(balance)
+                    var payabort bool = true
+        }
+
+
+
         result.WriteString("Payout Report ")
 	    result.WriteString(time.Now().Format(time.RFC850))
 	    result.WriteString("\n")
@@ -139,12 +156,12 @@ package main
         result.WriteString("Wallets                             Share    Payout\n")
 
         for k := range payments {
-		result.WriteString(payments[k].Wallet)
-		result.WriteString("    ")
-		result.WriteString(strconv.FormatFloat(payments[k].Share, 'f', -1, 64))
-		result.WriteString("      ")
-		result.WriteString(strconv.FormatFloat(payments[k].Pay, 'f', -1, 64))
-		result.WriteString("\n")
+		    result.WriteString(payments[k].Wallet)
+		    result.WriteString("    ")
+		    result.WriteString(strconv.FormatFloat(payments[k].Share, 'f', -1, 64))
+		    result.WriteString("      ")
+		    result.WriteString(strconv.FormatFloat(payments[k].Pay, 'f', -1, 64))
+		    result.WriteString("\n")
         }
 
 	    result.WriteString("\n")
@@ -152,5 +169,16 @@ package main
 	    result.WriteString(paycommand.String())
 
         fmt.Println(result.String())
- 
-    }
+
+        if payabort != true {
+            cmd := exec.Command("paycommand.String()")
+        	var out bytes.Buffer
+        	cmd.Stdout = &out
+        	err := cmd.Run()
+        	if err != nil {
+        		log.Fatal(err)
+        	}
+        	fmt.Printf(out.String())
+        }
+
+}
