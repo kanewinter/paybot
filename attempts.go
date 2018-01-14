@@ -23,6 +23,7 @@ package main
     var paycommand bytes.Buffer
     var result bytes.Buffer
     var payoutacct string
+    var adminwallet string
 
     func check(e error) {
         if e != nil {
@@ -69,8 +70,14 @@ package main
     }
 
     func createcommand() {
+
+        paycommand.WriteString(adminwallet)
+        paycommand.WriteString("\\\":")
+        tempadminpay := strconv.FormatFloat(payments[k].Pay, 'f', -1, 64)
+        paycommand.WriteString(tempadminpay)
+        paycommand.WriteString(",\\\"")
+
         for k := range payments {
-      	    //fmt.Println(payments[k].Wallet, payments[k].Pay)
       	    tempwallet:= string(payments[k].Wallet)
       	    paycommand.WriteString(tempwallet)
       	    paycommand.WriteString("\\\":")
@@ -111,6 +118,8 @@ package main
         collateral= 1000 //jsondata.collateral
         // balance= balance()
         //adminpercentage= jsondata.adminpercentage
+        //adminwallet= jsondata.adminwallet
+        adminwallet= "dfhsdfgdfgnfjdsgdfsgkmlsmkgrimnn"
         var adminpercentage= 0.1
         var adminpay float64 = float64(balance * adminpercentage)
         customerpay = float64(balance - adminpay)
@@ -118,32 +127,31 @@ package main
         parse()
         createcommand()
 
-	//fmt.Fprintf(&result, "", t)
         result.WriteString("Payout Report ")
-	result.WriteString(time.Now().Format(time.RFC850))
-	result.WriteString("\n")
+	    result.WriteString(time.Now().Format(time.RFC850))
+	    result.WriteString("\n")
         result.WriteString(payoutacct)
-	result.WriteString(" ")
-	result.WriteString(strconv.FormatFloat(balance, 'f', -1, 64))
-	result.WriteString("\n")
+	    result.WriteString(" ")
+	    result.WriteString(strconv.FormatFloat(balance, 'f', -1, 64))
+	    result.WriteString("\n")
         result.WriteString("Admin Pay ")
-	result.WriteString(strconv.FormatFloat(adminpay, 'f', -1, 64))
+	    result.WriteString(strconv.FormatFloat(adminpay, 'f', -1, 64))
         result.WriteString("\n")
         result.WriteString("Wallets                             Share    Payout\n")
+
         for k := range payments {
-        	//fmt.Println(&result, payments[k].Wallet, payments[k].Share, payments[k].Pay)
 		result.WriteString(payments[k].Wallet)
 		result.WriteString("    ")
 		result.WriteString(strconv.FormatFloat(payments[k].Share, 'f', -1, 64))
 		result.WriteString("      ")
 		result.WriteString(strconv.FormatFloat(payments[k].Pay, 'f', -1, 64))
 		result.WriteString("\n")
-        	}
-	result.WriteString("\n")
+        }
+
+	    result.WriteString("\n")
         result.WriteString("Pay Command to be Used \n")
-	result.WriteString(paycommand.String())
-	//fmt.Println(&result, paycommand.String())
+	    result.WriteString(paycommand.String())
 
         fmt.Println(result.String())
-        //fmt.Println(paycommand.String())
+ 
     }
