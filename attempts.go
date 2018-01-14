@@ -25,6 +25,7 @@ package main
     var result bytes.Buffer
     var payoutacct string
     var adminwallet string
+    var payabort bool = fales
 
     func check(e error) {
         if e != nil {
@@ -133,12 +134,12 @@ package main
             }
         if checkpayments > customerpay {
             log.Fatal(checkpayments)
-            var payabort bool = true
+            payabort= true
         }
 
         if (checkpayments + adminpay) > balance {
                     log.Fatal(balance)
-                    var payabort bool = true
+                    payabort= true
         }
 
 
