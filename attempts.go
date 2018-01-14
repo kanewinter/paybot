@@ -13,6 +13,7 @@ package main
         "strconv"
         "bytes"
 	    "time"
+	"net/http"
     )
 
     var collateral float64
@@ -99,9 +100,9 @@ fmt.Println("Sending Email")
    var apikey="cb9872db45f62a1e4b67ded1736d85a1:b211992104c42942713d8c4cacad7ad2"
 
 
- var mailcommand string= fmt.Sprintf("-x /usr/bin/curl") //-s -X POST --user %s https://api.mailjet.com/v3/send -H 'Content-Type: application/json' -d '{ \"FromEmail\":\"paybot@kane.ventures\", \"FromName\":\"Mailjet Pilot\", \"Subject\":\"Test4\", \"Text-part\":\"Dear passenger, welcome to Mailjet! May the delivery force be with you!\", \"Html-part\":\"<h3>Dear passenger, welcome to Mailjet!</h3><br />May the delivery force be with you!\", \"Recipients\":[ { \"Email\": \"kanewinter@gmail.com\" } ] }'", apikey)
+ //var mailcommand string= fmt.Sprintf("-x /usr/bin/curl") //-s -X POST --user %s https://api.mailjet.com/v3/send -H 'Content-Type: application/json' -d '{ \"FromEmail\":\"paybot@kane.ventures\", \"FromName\":\"Mailjet Pilot\", \"Subject\":\"Test4\", \"Text-part\":\"Dear passenger, welcome to Mailjet! May the delivery force be with you!\", \"Html-part\":\"<h3>Dear passenger, welcome to Mailjet!</h3><br />May the delivery force be with you!\", \"Recipients\":[ { \"Email\": \"kanewinter@gmail.com\" } ] }'", apikey)
 
-mailcmd := []string{mailcommand}
+//mailcmd := []string{mailcommand}
 
 fmt.Println(apikey)
 	//fmt.Println(mailcmd)
@@ -117,12 +118,17 @@ fmt.Println(apikey)
            	}
            	result.WriteString(out.String())
 
-           	var mailcommand string= fmt.Sprintf("-x /usr/bin/curl") //-s -X POST --user %s https://api.mailjet.com/v3/send -H 'Content-Type: application/json' -d '{ \"FromEmail\":\"paybot@kane.ventures\", \"FromName\":\"Mailjet Pilot\", \"Subject\":\"Test4\", \"Text-part\":\"Dear passenger, welcome to Mailjet! May the delivery force be with you!\", \"Html-part\":\"<h3>Dear passenger, welcome to Mailjet!</h3><br />May the delivery force be with you!\", \"Recipients\":[ { \"Email\": \"kanewinter@gmail.com\" } ] }'", apikey)
-           	resp, err := http.Post("https://api.mailjet.com/v3/send", "application/json", &buf)
+           	//var mailcommand string= fmt.Sprintf("-x /usr/bin/curl") //-s -X POST --user %s https://api.mailjet.com/v3/send -H 'Content-Type: application/json' -d '{ \"FromEmail\":\"paybot@kane.ventures\", \"FromName\":\"Mailjet Pilot\", \"Subject\":\"Test4\", \"Text-part\":\"Dear passenger, welcome to Mailjet! May the delivery force be with you!\", \"Html-part\":\"<h3>Dear passenger, welcome to Mailjet!</h3><br />May the delivery force be with you!\", \"Recipients\":[ { \"Email\": \"kanewinter@gmail.com\" } ] }'", apikey)
+           	//resp, err := http.Post("https://api.mailjet.com/v3/send", "application/json", &buf)
 
 
-MJ_APIKEY_PUBLIC:= cb9872db45f62a1e4b67ded1736d85a1
-MJ_APIKEY_PRIVATE:= b211992104c42942713d8c4cacad7ad2
+var MJ_APIKEY_PUBLIC string= "cb9872db45f62a1e4b67ded1736d85a1"
+var MJ_APIKEY_PRIVATE string= "b211992104c42942713d8c4cacad7ad2"
+
+
+type Recipient struct {
+    Email string `json:"Email"`
+}
 
 type Payload struct {
 	FromEmail  string `json:"FromEmail"`
@@ -130,24 +136,28 @@ type Payload struct {
 	Subject    string `json:"Subject"`
 	TextPart   string `json:"Text-part"`
 	HTMLPart   string `json:"Html-part"`
-	Recipients []struct {
-		Email string `json:"Email"`
-	} `json:"Recipients"`
+	Recipients []Recipient `json:"Recipients"`
 }
+
+
+//var email struct= "kanewinter@gmail.com"
+//email2:= []byte(email)
+
+
+emaillist:= Recipient{"kanewinter@gmail.com"}
+
 
 data := Payload{
 FromEmail: "paybot@kane.ventures",
 FromName: "Paybot",
-Subject: "test5",
+Subject: "test6",
 TextPart: "lots ot text can go here",
-HTMLPart: "lots of html",
-Recipients: []Recipients{
-    Email{
-        Email: "kanewinter@gmail.com",
-        },
-    }
-    }
-}
+HTMLPart: result.String(),
+Recipients: []Recipient {emaillist},
+ }
+
+
+
 payloadBytes, err := json.Marshal(data)
 if err != nil {
 	// handle err
@@ -158,7 +168,7 @@ req, err := http.NewRequest("POST", "https://api.mailjet.com/v3/send", body)
 if err != nil {
 	// handle err
 }
-req.SetBasicAuth(os.ExpandEnv("$MJ_APIKEY_PUBLIC"), os.ExpandEnv("$MJ_APIKEY_PRIVATE"))
+req.SetBasicAuth(os.ExpandEnv(MJ_APIKEY_PUBLIC), os.ExpandEnv(MJ_APIKEY_PRIVATE))
 req.Header.Set("Content-Type", "application/json")
 
 resp, err := http.DefaultClient.Do(req)
