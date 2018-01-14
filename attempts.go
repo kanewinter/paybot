@@ -11,6 +11,7 @@ package main
         "strings"
         "strconv"
         "bytes"
+	"time"
     )
 
     var collateral float64
@@ -99,7 +100,7 @@ package main
         //fmt.Println()
 
 
-        var balance= 37.5
+        var balance float64 = 122.5
         var payoutacct= "BP&C Payout" //jsondata.payoutacct
         paycommand.WriteString("sendmany ")
 
@@ -117,17 +118,31 @@ package main
         parse()
         createcommand()
 
-        t := time.Now().UTC()
-        result.WriteString("Payout Report %t"\n, t)
-        result.WriteString(payoutacct balance "\n")
-        result.WriteString("Admin Pay " adminpay)
-        result.WriteString("\n)
-        result.WriteString("Wallets                       Share               Payout")
+	//fmt.Fprintf(&result, "", t)
+        result.WriteString("Payout Report ")
+	result.WriteString(time.Now().Format(time.RFC850))
+	result.WriteString("\n")
+        result.WriteString(payoutacct)
+	result.WriteString(" ")
+	result.WriteString(strconv.FormatFloat(balance, 'f', -1, 64))
+	result.WriteString("\n")
+        result.WriteString("Admin Pay ")
+	result.WriteString(strconv.FormatFloat(adminpay, 'f', -1, 64))
+        result.WriteString("\n")
+        result.WriteString("Wallets                             Share    Payout\n")
         for k := range payments {
-        	fmt.Println(&result, payments[k].Wallet, payments[k].Share, payments[k].Pay)
+        	//fmt.Println(&result, payments[k].Wallet, payments[k].Share, payments[k].Pay)
+		result.WriteString(payments[k].Wallet)
+		result.WriteString("    ")
+		result.WriteString(strconv.FormatFloat(payments[k].Share, 'f', -1, 64))
+		result.WriteString("      ")
+		result.WriteString(strconv.FormatFloat(payments[k].Pay, 'f', -1, 64))
+		result.WriteString("\n")
         	}
-        result.WriteString("Pay Command to be Used"
-        result.WriteString(paycommand)
+	result.WriteString("\n")
+        result.WriteString("Pay Command to be Used \n")
+	result.WriteString(paycommand.String())
+	//fmt.Println(&result, paycommand.String())
 
         fmt.Println(result.String())
         //fmt.Println(paycommand.String())
