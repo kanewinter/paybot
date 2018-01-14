@@ -195,7 +195,7 @@ package main
         fmt.Println(result.String())
 
         var paycmd string = paycommand.String()
-	fmt.Println(paycmd)
+	    fmt.Println(paycmd)
         if payabort != true {
             cmd := exec.Command("gobyte-cli", "paycmd")
         	var out bytes.Buffer
