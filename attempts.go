@@ -118,7 +118,7 @@ emaillist:= Recipient{"admin@kane.ventures"}
 data := Payload{
 FromEmail: "paybot@kane.ventures",
 FromName: "Paybot",
-Subject: "Payout Report",
+Subject: "Payout Report time.Now().Format(time.RFC850)",
 TextPart: result.String(),
 HTMLPart: result.String(),
 Recipients: []Recipient {emaillist},
@@ -237,7 +237,7 @@ fmt.Println(result.String())
 
 
         if payabort != true {
-            cmd := exec.Command("gobyte-cli", "paycmd")
+            cmd := exec.Command("gobyte-cli", paycmd)
         	var out bytes.Buffer
         	cmd.Stdout = &out
         	err := cmd.Run()
