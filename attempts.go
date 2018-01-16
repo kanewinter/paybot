@@ -127,12 +127,14 @@ Recipients: []Recipient {emaillist},
 payloadBytes, err := json.Marshal(data)
 if err != nil {
 	// handle err
+	fmt.Println("ERROR")
 }
 body := bytes.NewReader(payloadBytes)
 
 req, err := http.NewRequest("POST", "https://api.mailjet.com/v3/send", body)
 if err != nil {
 	// handle err
+	fmt.Println("ERROR")
 }
 req.SetBasicAuth(os.ExpandEnv(MJ_APIKEY_PUBLIC), os.ExpandEnv(MJ_APIKEY_PRIVATE))
 req.Header.Set("Content-Type", "application/json")
@@ -140,6 +142,7 @@ req.Header.Set("Content-Type", "application/json")
 resp, err := http.DefaultClient.Do(req)
 if err != nil {
 	// handle err
+	fmt.Println("ERROR")
 }
 defer resp.Body.Close()
 
