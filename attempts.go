@@ -156,16 +156,6 @@ HTMLPart: result.String(),
 Recipients: []Recipient {emaillist},
  }
 
-
-
-c := &Configuration{
-        Val: "test",
-        Proxy: Proxy{
-            Address: "addr",
-            Port:    "port",
-        },
-    }
-
 payloadBytes, err := json.Marshal(data)
 if err != nil {
 	// handle err
