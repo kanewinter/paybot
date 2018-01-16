@@ -155,8 +155,8 @@ TextPart: "lots ot text can go here",
 HTMLPart: result.String(),
 Recipients: []Recipient {emaillist},
  }
-    }
-    }
+
+
 
 c := &Configuration{
         Val: "test",
