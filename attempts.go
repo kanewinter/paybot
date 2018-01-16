@@ -141,13 +141,20 @@ FromName: "Paybot",
 Subject: "test5",
 TextPart: "lots ot text can go here",
 HTMLPart: "lots of html",
-Recipients: []Recipients{
-    Email{
+Recipients: Recipients{
         Email: "kanewinter@gmail.com",
         },
     }
     }
-}
+
+c := &Configuration{
+        Val: "test",
+        Proxy: Proxy{
+            Address: "addr",
+            Port:    "port",
+        },
+    }
+
 payloadBytes, err := json.Marshal(data)
 if err != nil {
 	// handle err
@@ -171,6 +178,13 @@ defer resp.Body.Close()
 
 fmt.Println("mail sent?")
 
+    }
+
+    func init() {
+        http.HandleFunc("/", handler)
+    }
+    func handler(w http.ResponseWriter, r *http.Request) {
+        fmt.Fprint(w, "Hello, world!")
     }
 
     func main() {
