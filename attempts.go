@@ -97,34 +97,8 @@ package main
     func notification() {
 fmt.Println("Sending Email")
 
-   var apikey="cb9872db45f62a1e4b67ded1736d85a1:b211992104c42942713d8c4cacad7ad2"
-
-
- //var mailcommand string= fmt.Sprintf("-x /usr/bin/curl") //-s -X POST --user %s https://api.mailjet.com/v3/send -H 'Content-Type: application/json' -d '{ \"FromEmail\":\"paybot@kane.ventures\", \"FromName\":\"Mailjet Pilot\", \"Subject\":\"Test4\", \"Text-part\":\"Dear passenger, welcome to Mailjet! May the delivery force be with you!\", \"Html-part\":\"<h3>Dear passenger, welcome to Mailjet!</h3><br />May the delivery force be with you!\", \"Recipients\":[ { \"Email\": \"kanewinter@gmail.com\" } ] }'", apikey)
-
-//mailcmd := []string{mailcommand}
-
-fmt.Println(apikey)
-	//fmt.Println(mailcmd)
-
-	   cmd := exec.Command("/usr/bin/curl", )
-           	var out bytes.Buffer
-           	cmd.Stdout = &out
-           	err := cmd.Run()
-		fmt.Println(cmd.Output)
-		fmt.Println(cmd.Stdout)
-           	if err != nil {
-           		fmt.Println(err.Error)
-           	}
-           	result.WriteString(out.String())
-
-           	//var mailcommand string= fmt.Sprintf("-x /usr/bin/curl") //-s -X POST --user %s https://api.mailjet.com/v3/send -H 'Content-Type: application/json' -d '{ \"FromEmail\":\"paybot@kane.ventures\", \"FromName\":\"Mailjet Pilot\", \"Subject\":\"Test4\", \"Text-part\":\"Dear passenger, welcome to Mailjet! May the delivery force be with you!\", \"Html-part\":\"<h3>Dear passenger, welcome to Mailjet!</h3><br />May the delivery force be with you!\", \"Recipients\":[ { \"Email\": \"kanewinter@gmail.com\" } ] }'", apikey)
-           	//resp, err := http.Post("https://api.mailjet.com/v3/send", "application/json", &buf)
-
-
 var MJ_APIKEY_PUBLIC string= "cb9872db45f62a1e4b67ded1736d85a1"
 var MJ_APIKEY_PRIVATE string= "b211992104c42942713d8c4cacad7ad2"
-
 
 type Recipient struct {
     Email string `json:"Email"`
@@ -139,19 +113,13 @@ type Payload struct {
 	Recipients []Recipient `json:"Recipients"`
 }
 
-
-//var email struct= "kanewinter@gmail.com"
-//email2:= []byte(email)
-
-
-emaillist:= Recipient{"kanewinter@gmail.com"}
-
+emaillist:= Recipient{"admin@kane.ventures"}
 
 data := Payload{
 FromEmail: "paybot@kane.ventures",
 FromName: "Paybot",
-Subject: "test6",
-TextPart: "lots ot text can go here",
+Subject: "Payout Report",
+TextPart: result.String(),
 HTMLPart: result.String(),
 Recipients: []Recipient {emaillist},
  }
@@ -175,9 +143,7 @@ if err != nil {
 }
 defer resp.Body.Close()
 
-
-
-fmt.Println("mail sent?")
+fmt.Println(result.String())
 
     }
 
@@ -264,10 +230,10 @@ fmt.Println("mail sent?")
 	    result.WriteString(paycommand.String())
 	    result.WriteString("\n")
 
-        fmt.Println(result.String())
+
 
         var paycmd string = paycommand.String()
-	    fmt.Println(paycmd)
+	    //fmt.Println(paycmd)
 
 
         if payabort != true {
