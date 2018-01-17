@@ -50,8 +50,6 @@ package main
         scanner := bufio.NewScanner(file)
 
         for scanner.Scan() {
-            //fmt.Println("Line:", scanner.Text())
-
             temp := strings.Split(scanner.Text(), " ")
 
             payees := new(Payee)
@@ -59,18 +57,13 @@ package main
 
             tempshare, err:= strconv.ParseInt(temp[1], 10, 64)
                 if err == nil {
-                    //fmt.Println(tempshare)
                 }
 
             payees.Share= float64(tempshare)
             payees.Pay= float64((payees.Share / collateral) * customerpay)
-            //fmt.Println(payees.Wallet, payees.Share, payees.Pay)
             payments = append(payments, payees)
 
         }
-	//for k := range payments {
-	//fmt.Println(payments[k].Wallet, payments[k].Share, payments[k].Pay)
-	//}
     }
 
     func createcommand(adminpay float64) {
@@ -244,11 +237,7 @@ fmt.Println(result.String())
 	    result.WriteString(paycommand.String())
 	    result.WriteString("\n")
 
-
-
         var paycmd string = paycommand.String()
-	    //fmt.Println(paycmd)
-
 
         if payabort != true {
             cmd := exec.Command("gobyte-cli", paycmd)
