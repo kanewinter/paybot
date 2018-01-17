@@ -14,6 +14,7 @@ package main
         "bytes"
 	    "time"
 	"net/http"
+	"html/template"
     )
 
     var collateral float64
@@ -113,14 +114,24 @@ type Payload struct {
 	Recipients []Recipient `json:"Recipients"`
 }
 
-emaillist:= Recipient{"admin@kane.ventures"}
+//emaillist:= Recipient{"admin@kane.ventures"}
+emaillist:= Recipient{"kane4ventures@gmail.com"}
+
+s := ""
+buf := bytes.NewBufferString(s)
+
+
+t, _ := template.ParseFiles("email.html")
+t.Execute(buf, payments)
+
 
 data := Payload{
 FromEmail: "paybot@kane.ventures",
 FromName: "Paybot",
-Subject: "Payout Report time.Now().Format(time.RFC850)",
+Subject: "Payout Report",
 TextPart: result.String(),
-HTMLPart: result.String(),
+HTMLPart: buf.String(),
+//HTMLPart: result.String(),
 Recipients: []Recipient {emaillist},
  }
 
