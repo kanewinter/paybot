@@ -201,17 +201,20 @@ fmt.Println(result.String())
         parse()
         createcommand(adminpay)
 
+
         var checkpayments float64
         for k := range payments {
             checkpayments= checkpayments + payments[k].Pay
             }
         if checkpayments > customerpay {
             log.Fatal(checkpayments)
+	fmt.Println(checkpayments, customerpay)
             payabort= true
         }
 
         if (checkpayments + adminpay) > balance {
                     log.Fatal(balance)
+		fmt.Println(checkpayments, customerpay, balance)
                     payabort= true
         }
 
