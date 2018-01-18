@@ -13,7 +13,8 @@ package main
         "strconv"
         "bytes"
 	    "time"
-	"net/smtp"
+	"net/http"
+	"html/template"
     )
 
     var collateral float64
@@ -49,8 +50,6 @@ package main
         scanner := bufio.NewScanner(file)
 
         for scanner.Scan() {
-            //fmt.Println("Line:", scanner.Text())
-
             temp := strings.Split(scanner.Text(), " ")
 
             payees := new(Payee)
@@ -58,18 +57,13 @@ package main
 
             tempshare, err:= strconv.ParseInt(temp[1], 10, 64)
                 if err == nil {
-                    //fmt.Println(tempshare)
                 }
 
             payees.Share= float64(tempshare)
             payees.Pay= float64((payees.Share / collateral) * customerpay)
-            //fmt.Println(payees.Wallet, payees.Share, payees.Pay)
             payments = append(payments, payees)
 
         }
-	//for k := range payments {
-	//fmt.Println(payments[k].Wallet, payments[k].Share, payments[k].Pay)
-	//}
     }
 
     func createcommand(adminpay float64) {
@@ -95,41 +89,76 @@ package main
     }
 
     func notification() {
+fmt.Println("Sending Email")
+
+var MJ_APIKEY_PUBLIC string= "cb9872db45f62a1e4b67ded1736d85a1"
+var MJ_APIKEY_PRIVATE string= "b211992104c42942713d8c4cacad7ad2"
+
+type Recipient struct {
+    Email string `json:"Email"`
+}
+
+type Payload struct {
+	FromEmail  string `json:"FromEmail"`
+	FromName   string `json:"FromName"`
+	Subject    string `json:"Subject"`
+	TextPart   string `json:"Text-part"`
+	HTMLPart   string `json:"Html-part"`
+	Recipients []Recipient `json:"Recipients"`
+}
+
+//emaillist:= Recipient{"admin@kane.ventures"}
+emaillist:= Recipient{"kane4ventures@gmail.com"}
+
+s := ""
+buf := bytes.NewBufferString(s)
 
 
- apikey="cb9872db45f62a1e4b67ded1736d85a1:b211992104c42942713d8c4cacad7ad2"
+t, _ := template.ParseFiles("email.html")
+t.Execute(buf, payments)
 
 
- var mailcommand string := "curl -s \
-   -X POST \
-   --user "$apikey" \
-   https://api.mailjet.com/v3/send \
-   -H 'Content-Type: application/json' \
-   -d '{
-     "FromEmail":"pilot@mailjet.com",
-     "FromName":"Mailjet Pilot",
-     "Subject":"Your email flight plan!",
-     "Text-part":"Dear passenger, welcome to Mailjet! May the delivery force be with you!",
-     "Html-part":"<h3>Dear passenger, welcome to Mailjet!</h3><br />May the delivery force be with you!",
-     "Recipients":[
-         {
-             "Email": "passenger@mailjet.com"
-         }
-     ]
-   }'"
+data := Payload{
+FromEmail: "paybot@kane.ventures",
+FromName: "Paybot",
+Subject: "Payout Report",
+TextPart: result.String(),
+HTMLPart: buf.String(),
+//HTMLPart: result.String(),
+Recipients: []Recipient {emaillist},
+ }
 
+payloadBytes, err := json.Marshal(data)
+if err != nil {
+	// handle err
+	fmt.Println("ERROR")
+}
+body := bytes.NewReader(payloadBytes)
 
-   cmd := exec.Command(mailcommand)
-           	var out bytes.Buffer
-           	cmd.Stdout = &out
-           	err := cmd.Run()
-           	if err != nil {
-           		log.Fatal(err)
-           	}
-           	result.WriteString(out.String())
+req, err := http.NewRequest("POST", "https://api.mailjet.com/v3/send", body)
+if err != nil {
+	// handle err
+	fmt.Println("ERROR")
+}
+req.SetBasicAuth(os.ExpandEnv(MJ_APIKEY_PUBLIC), os.ExpandEnv(MJ_APIKEY_PRIVATE))
+req.Header.Set("Content-Type", "application/json")
 
+resp, err := http.DefaultClient.Do(req)
+if err != nil {
+	// handle err
+	fmt.Println("ERROR")
+}
+defer resp.Body.Close()
 
+fmt.Println(result.String())
 
+    }
+
+    func init() {
+        http.HandleFunc("/", handler)
+    }
+    func handler(w http.ResponseWriter, r *http.Request) {
+        fmt.Fprint(w, "Hello, world!")
     }
 
     func main() {
@@ -165,17 +194,20 @@ package main
         parse()
         createcommand(adminpay)
 
+
         var checkpayments float64
         for k := range payments {
             checkpayments= checkpayments + payments[k].Pay
             }
         if checkpayments > customerpay {
             log.Fatal(checkpayments)
+	fmt.Println(checkpayments, customerpay)
             payabort= true
         }
 
         if (checkpayments + adminpay) > balance {
                     log.Fatal(balance)
+		fmt.Println(checkpayments, customerpay, balance)
                     payabort= true
         }
 
@@ -193,6 +225,7 @@ package main
         result.WriteString("\n")
         result.WriteString("Wallets                             Share    Payout\n")
 
+
         for k := range payments {
 		    result.WriteString(payments[k].Wallet)
 		    result.WriteString("    ")
@@ -207,17 +240,15 @@ package main
 	    result.WriteString(paycommand.String())
 	    result.WriteString("\n")
 
-        fmt.Println(result.String())
-
         var paycmd string = paycommand.String()
-	    fmt.Println(paycmd)
+
         if payabort != true {
-            cmd := exec.Command("gobyte-cli", "paycmd")
+            cmd := exec.Command("gobyte-cli", paycmd)
         	var out bytes.Buffer
         	cmd.Stdout = &out
         	err := cmd.Run()
         	if err != nil {
-        		log.Fatal(err)
+        		//log.Fatal(err)
         	}
         	result.WriteString(out.String())
         }
