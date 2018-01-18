@@ -45,7 +45,8 @@ package main
         // Open file and create scanner on top of it
         file, err := os.Open("customerdata.dat")
         if err != nil {
-            log.Fatal(err)
+		fmt.Println("error customerdata ", err.Error)
+		log.Fatal(err)
         }
         scanner := bufio.NewScanner(file)
 
@@ -243,12 +244,13 @@ fmt.Println(result.String())
         var paycmd string = paycommand.String()
 
         if payabort != true {
-            cmd := exec.Command("gobyte-cli", paycmd)
+            cmd := exec.Command("/opt/gobyte/gobyte-cli", paycmd)
         	var out bytes.Buffer
         	cmd.Stdout = &out
         	err := cmd.Run()
         	if err != nil {
-        		//log.Fatal(err)
+			fmt.Println("exec error ", err.Error, out.String())
+        		log.Fatal(err)
         	}
         	result.WriteString(out.String())
         }
