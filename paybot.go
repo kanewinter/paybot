@@ -15,32 +15,34 @@ package main
 	    "time"
 	    "net/http"
 	    "html/template"
-	    "flag"
     )
 
-    ### Flags
-    cli := flag.String("c", "/opt/gobyte/gobyte-cli", "coin cli")
-
-    flag.Parse()
-    var coincli string = *cli
-
-    var collateral float64
-    var adminpercentage float64
     var adminpay float64
     var customerpay float64
     var balance float64
     var payments= []*Payee{}
     var paycommand bytes.Buffer
     var result bytes.Buffer
-    var payoutacct string
-    var adminwallet string
     var payabort bool = false
+    var collateral float64
+    var coincli string
+    var adminwallet string
 
     func check(e error) {
         if e != nil {
             panic(e)
         }
     }
+
+    type Config struct {
+        coin            string
+        cli             string
+        payoutacct      string
+        coll            float64
+        admin           string
+        adminpercentage float64
+    }
+
 
     type Payee struct {
         Wallet     string
@@ -74,7 +76,7 @@ package main
         }
     }
 
-    func getbalance() (float64, error) {
+    func getbalance() (float64) {
 
         balancecmd := "getbalance"
 
@@ -88,9 +90,15 @@ package main
         }
        	//result.WriteString(out.String())
 
-       	balance := out.Float64()
+        var tmp bytes.Buffer
+        tmp.WriteString(out.String())
+        var stuff string = tmp.String()
+        things, err := strconv.ParseFloat(stuff, 64)
 
-        return balance
+        fmt.Println(things)
+        fmt.Println()
+
+        return things
     }
 
 
@@ -183,35 +191,32 @@ package main
 
     func main() {
 
-
         datafile, err := ioutil.ReadFile("payconfig.dat")
         check(err)
         //fmt.Println(string(datafile))
 
-        var jsondata interface{}
-        json.Unmarshal(datafile, &jsondata)
+        var payconfig Config
+        json.Unmarshal(datafile, &payconfig)
         //fmt.Println(interface{}(jsondata))
         //fmt.Println()
 
+        balance = getbalance()
+        var payoutacct string = payconfig.payoutacct
+        adminwallet = payconfig.admin
+        collateral = payconfig.coll
+        coincli := payconfig.cli
+        adminpercentage := payconfig.adminpercentage
+        var adminpay float64 = float64(balance * adminpercentage)
+        customerpay = float64(balance - adminpay)
 
-        var balance float64 = getbalance()
-        var payoutacct := jsondata.payoutacct
+
         paycommand.WriteString("sendmany ")
-
 	    fmt.Fprintf(&paycommand, "\"")
 	    paycommand.WriteString(payoutacct)
 	    fmt.Fprintf(&paycommand, "\" \"{\\\"")
 
-        collateral := jsondata.collateral
-
-        adminpercentage := jsondata.adminpercentage
-        adminwallet := jsondata.adminwallet
-        var adminpay float64 = float64(balance * adminpercentage)
-        customerpay = float64(balance - adminpay)
-
         parse()
         createcommand(adminpay)
-
 
         var checkpayments float64
         for k := range payments {
@@ -259,6 +264,8 @@ package main
 	    result.WriteString("\n")
 
         var paycmd string = paycommand.String()
+
+        payabort = true
 
         if payabort != true {
             cmd := exec.Command(coincli, paycmd)

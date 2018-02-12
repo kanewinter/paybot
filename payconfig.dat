@@ -1,5 +1,6 @@
 {
   "coin": "GoByte",
+  "cli": "/home/mentatmind/argo-cli"
   "walletpath": "/path/to/wallet.dat",
   "payoutacct": "BP&C Payout",
   "collateral": 1000,
