@@ -13,9 +13,16 @@ package main
         "strconv"
         "bytes"
 	    "time"
-	"net/http"
-	"html/template"
+	    "net/http"
+	    "html/template"
+	    "flag"
     )
+
+    ### Flags
+    cli := flag.String("c", "/opt/gobyte/gobyte-cli", "coin cli")
+
+    flag.Parse()
+    var coincli string = *cli
 
     var collateral float64
     var adminpercentage float64
@@ -67,6 +74,26 @@ package main
         }
     }
 
+    func getbalance() (float64, error) {
+
+        balancecmd := "getbalance"
+
+        cmd := exec.Command(coincli, balancecmd)
+        var out bytes.Buffer
+        cmd.Stdout = &out
+        err := cmd.Run()
+        if err != nil {
+		    fmt.Println("exec error ", err.Error, out.String())
+        	log.Fatal(err)
+        }
+       	//result.WriteString(out.String())
+
+       	balance := out.Float64()
+
+        return balance
+    }
+
+
     func createcommand(adminpay float64) {
 
         paycommand.WriteString(adminwallet)
@@ -90,76 +117,68 @@ package main
     }
 
     func notification() {
-fmt.Println("Sending Email")
 
-var MJ_APIKEY_PUBLIC string= "cb9872db45f62a1e4b67ded1736d85a1"
-var MJ_APIKEY_PRIVATE string= "b211992104c42942713d8c4cacad7ad2"
+        fmt.Println("Sending Email")
 
-type Recipient struct {
-    Email string `json:"Email"`
-}
+        var MJ_APIKEY_PUBLIC string= "cb9872db45f62a1e4b67ded1736d85a1"
+        var MJ_APIKEY_PRIVATE string= "b211992104c42942713d8c4cacad7ad2"
 
-type Payload struct {
-	FromEmail  string `json:"FromEmail"`
-	FromName   string `json:"FromName"`
-	Subject    string `json:"Subject"`
-	TextPart   string `json:"Text-part"`
-	HTMLPart   string `json:"Html-part"`
-	Recipients []Recipient `json:"Recipients"`
-}
+        type Recipient struct {
+            Email string `json:"Email"`
+        }
 
-//emaillist:= Recipient{"admin@kane.ventures"}
-emaillist:= Recipient{"kane4ventures@gmail.com"}
+        type Payload struct {
+        	FromEmail  string `json:"FromEmail"`
+	        FromName   string `json:"FromName"`
+	        Subject    string `json:"Subject"`
+	        TextPart   string `json:"Text-part"`
+	        HTMLPart   string `json:"Html-part"`
+	        Recipients []Recipient `json:"Recipients"`
+        }
 
-s := ""
-buf := bytes.NewBufferString(s)
+        //emaillist:= Recipient{"admin@kane.ventures"}
+        emaillist:= Recipient{"kane4ventures@gmail.com"}
 
+        s := ""
+        buf := bytes.NewBufferString(s)
 
-t, _ := template.ParseFiles("email.html")
-t.Execute(buf, payments)
+        t, _ := template.ParseFiles("email.html")
+        t.Execute(buf, payments)
 
+        data := Payload{
+            FromEmail: "paybot@kane.ventures",
+            FromName: "Paybot",
+            Subject: "Payout Report",
+            TextPart: result.String(),
+            HTMLPart: buf.String(),
+            //HTMLPart: result.String(),
+            Recipients: []Recipient {emaillist},
+        }
 
-data := Payload{
-FromEmail: "paybot@kane.ventures",
-FromName: "Paybot",
-Subject: "Payout Report",
-TextPart: result.String(),
-HTMLPart: buf.String(),
-//HTMLPart: result.String(),
-Recipients: []Recipient {emaillist},
- }
+        payloadBytes, err := json.Marshal(data)
+        if err != nil {
+	        // handle err
+	        fmt.Println("ERROR")
+        }
+        body := bytes.NewReader(payloadBytes)
 
-payloadBytes, err := json.Marshal(data)
-if err != nil {
-	// handle err
-	fmt.Println("ERROR")
-}
-body := bytes.NewReader(payloadBytes)
+        req, err := http.NewRequest("POST", "https://api.mailjet.com/v3/send", body)
+        if err != nil {
+	        // handle err
+	        fmt.Println("ERROR")
+        }
+        req.SetBasicAuth(os.ExpandEnv(MJ_APIKEY_PUBLIC), os.ExpandEnv(MJ_APIKEY_PRIVATE))
+        req.Header.Set("Content-Type", "application/json")
 
-req, err := http.NewRequest("POST", "https://api.mailjet.com/v3/send", body)
-if err != nil {
-	// handle err
-	fmt.Println("ERROR")
-}
-req.SetBasicAuth(os.ExpandEnv(MJ_APIKEY_PUBLIC), os.ExpandEnv(MJ_APIKEY_PRIVATE))
-req.Header.Set("Content-Type", "application/json")
+        resp, err := http.DefaultClient.Do(req)
+        if err != nil {
+	        // handle err
+	        fmt.Println("ERROR")
+        }
+        defer resp.Body.Close()
 
-resp, err := http.DefaultClient.Do(req)
-if err != nil {
-	// handle err
-	fmt.Println("ERROR")
-}
-defer resp.Body.Close()
+        fmt.Println(result.String())
 
-fmt.Println(result.String())
-
-    }
-
-    func init() {
-        http.HandleFunc("/", handler)
-    }
-    func handler(w http.ResponseWriter, r *http.Request) {
-        fmt.Fprint(w, "Hello, world!")
     }
 
     func main() {
@@ -175,20 +194,18 @@ fmt.Println(result.String())
         //fmt.Println()
 
 
-        var balance float64 = 122.5
-        var payoutacct= "BP&C Payout" //jsondata.payoutacct
+        var balance float64 = getbalance()
+        var payoutacct := jsondata.payoutacct
         paycommand.WriteString("sendmany ")
 
 	    fmt.Fprintf(&paycommand, "\"")
 	    paycommand.WriteString(payoutacct)
 	    fmt.Fprintf(&paycommand, "\" \"{\\\"")
 
-        collateral= 1000 //jsondata.collateral
-        // balance= balance()
-        //adminpercentage= jsondata.adminpercentage
-        //adminwallet= jsondata.adminwallet
-        adminwallet= "dfhsdfgdfgnfjdsgdfsgkmlsmkgrimnn"
-        var adminpercentage= 0.1
+        collateral := jsondata.collateral
+
+        adminpercentage := jsondata.adminpercentage
+        adminwallet := jsondata.adminwallet
         var adminpay float64 = float64(balance * adminpercentage)
         customerpay = float64(balance - adminpay)
 
@@ -244,7 +261,7 @@ fmt.Println(result.String())
         var paycmd string = paycommand.String()
 
         if payabort != true {
-            cmd := exec.Command("/opt/gobyte/gobyte-cli", paycmd)
+            cmd := exec.Command(coincli, paycmd)
         	var out bytes.Buffer
         	cmd.Stdout = &out
         	err := cmd.Run()

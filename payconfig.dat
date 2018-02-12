@@ -1,7 +1,7 @@
 {
   "coin": "GoByte",
   "walletpath": "/path/to/wallet.dat",
-  "payoutacct": "BP&C Payout"
+  "payoutacct": "BP&C Payout",
   "collateral": 1000,
   "adminwallet": "dhdsjrshrgs",
   "adminpercentage": 0.1,
