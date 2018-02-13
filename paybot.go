@@ -121,7 +121,7 @@ package main
         	log.Fatal(err)
         }
        	//result.WriteString(out.String())
-
+        fmt.Println(out)
         var tmp bytes.Buffer
         tmp.WriteString(out.String())
         var stuff string = tmp.String()
