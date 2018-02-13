@@ -66,8 +66,8 @@ package main
         // Open file and create scanner on top of it
         file, err := os.Open("customerdata.dat")
         if err != nil {
-		fmt.Println("error customerdata ", err.Error)
-		log.Fatal(err)
+		    fmt.Println("error customerdata ", err.Error)
+		    log.Fatal(err)
         }
         scanner := bufio.NewScanner(file)
 
@@ -81,8 +81,13 @@ package main
                 if err == nil {
                 }
 
-            payees.Share= float64(tempshare)
-            payees.Pay= Round(float64((payees.Share / collateral) * customerpay), .5, 2)
+            payees.Share = float64(tempshare)
+            fmt.Println(payees.Share)
+            fmt.Println(customerpay)
+            payees.Pay = float64((payees.Share / collateral) * customerpay)
+            fmt.Println(payees.Pay)
+            payees.Pay = Round(payees.Pay, .5, 2)
+            fmt.Println(payees.Pay)
             payments = append(payments, payees)
 
         }
@@ -132,6 +137,7 @@ package main
                 	log.Fatal(err)
                 }
         things = float64(things - collateral - 1)
+        things = Round(things, .5, 1)
 
         if things < 20 {
         fmt.Println("Balance too low: ", things)
@@ -145,7 +151,7 @@ package main
     }
 
 
-    func createcommand(adminpay float64) {
+    func createcommand() {
 
         paycommand.WriteString("sendmany ")
         fmt.Fprintf(&paycommand, "\"")
@@ -242,10 +248,10 @@ package main
         custdata()
         balance = getbalance()
 
-        var adminpay float64 = float64(balance * adminpercentage)
+        adminpay = float64(balance * adminpercentage)
         customerpay = float64(balance - adminpay)
 
-        createcommand(adminpay)
+        createcommand()
 
         var checkpayments float64
         for k := range payments {
