@@ -234,6 +234,10 @@ package main
         }
         defer resp.Body.Close()
 
+        fmt.Println("")
+        fmt.Println("")
+        fmt.Println("##########################")
+        fmt.Println("Command Line Run Results")
         fmt.Println(result.String())
 
     }
@@ -310,8 +314,9 @@ package main
         	cmd.Stdout = &out
         	err := cmd.Run()
         	if err != nil {
-			fmt.Println("exec error ", err.Error, out.String())
+			    fmt.Println("exec error ", err.Error, out.String())
         	}
+        	fmt.Println(out.String())
         	result.WriteString(out.String())
         }
 
@@ -326,5 +331,6 @@ package main
          }
 
          notification()
+
 
 }
