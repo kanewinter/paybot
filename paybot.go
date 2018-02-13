@@ -13,6 +13,7 @@ package main
         "strconv"
         "bytes"
 	    "time"
+	    "math"
 	    "net/http"
 	    "html/template"
 	    "github.com/spf13/viper"
@@ -47,7 +48,21 @@ package main
         Pay       float64
     }
 
-    func parse() {
+    func Round(val float64, roundOn float64, places int ) (newVal float64) {
+	    var round float64
+	    pow := math.Pow(10, float64(places))
+	    digit := pow * val
+	    _, div := math.Modf(digit)
+	    if div >= roundOn {
+	    	round = math.Ceil(digit)
+	    } else {
+	    	round = math.Floor(digit)
+	    }
+	    newVal = round / pow
+	    return
+    }
+
+    func custdata() {
         // Open file and create scanner on top of it
         file, err := os.Open("customerdata.dat")
         if err != nil {
@@ -67,7 +82,7 @@ package main
                 }
 
             payees.Share= float64(tempshare)
-            payees.Pay= float64((payees.Share / collateral) * customerpay)
+            payees.Pay= Round(float64((payees.Share / collateral) * customerpay), .5, 2)
             payments = append(payments, payees)
 
         }
@@ -79,6 +94,7 @@ package main
         err := viper.ReadInConfig()
         if err != nil {
             fmt.Println("Config file not found...")
+            payabort = true
           } else {
             coin = viper.GetString("config.coin")
             coincli = viper.GetString("config.cli")
@@ -87,23 +103,17 @@ package main
             adminwallet = viper.GetString("config.adminwallet")
             adminpercentage = viper.GetFloat64("config.adminpercentage")
 
-            fmt.Printf("\n Config found:\n coin = %s\n cli = %d\n" +
-                " payoutacct = %t\n" +
-                " collateral = %d\n",
-                coin,
-                coincli,
-                payoutacct,
-                collateral)
+            fmt.Printf("\n Config found:\n coin = %s\n", coin)
+            fmt.Printf(" coin-cli = %j\n", coincli)
+            fmt.Printf(" payoutacct = %i\n", payoutacct)
+            fmt.Printf(" collateral = %h\n", collateral)
+            fmt.Printf(" adminwallet = %g\n", adminwallet)
+            fmt.Printf(" adminpercentage = %f\n", adminpercentage)
                 }
     }
 
-
-
-
-
-
     func getbalance() (float64) {
-        fmt.Println("getting balance")
+        fmt.Println("Getting Balance...")
         balancecmd := "getbalance"
         cmd := exec.Command(coincli, balancecmd)
         var out bytes.Buffer
@@ -122,12 +132,25 @@ package main
                 	log.Fatal(err)
                 }
         things = float64(things - collateral - 1)
+
+        if things < 20 {
+        fmt.Println("Balance too low: ", things)
+        result.WriteString("Balance too low: ")
+        result.WriteString(strconv.FormatFloat(things, 'f', -1, 64))
+        result.WriteString("\n")
+        payabort= true
+        }
+
         return things
     }
 
 
     func createcommand(adminpay float64) {
 
+        paycommand.WriteString("sendmany ")
+        fmt.Fprintf(&paycommand, "\"")
+        paycommand.WriteString(payoutacct)
+        fmt.Fprintf(&paycommand, "\" \"{\\\"")
         paycommand.WriteString(adminwallet)
         paycommand.WriteString("\\\":")
 	    paycommand.WriteString(strconv.FormatFloat(adminpay, 'f', -1, 64))
@@ -216,26 +239,12 @@ package main
     func main() {
 
         getconfig()
-
-        fmt.Println()
-
-        fmt.Println(payoutacct)
-        fmt.Println(adminwallet)
-        fmt.Println(collateral)
-        fmt.Println(coincli)
-        fmt.Println(adminpercentage)
-
+        custdata()
         balance = getbalance()
 
         var adminpay float64 = float64(balance * adminpercentage)
         customerpay = float64(balance - adminpay)
 
-        paycommand.WriteString("sendmany ")
-	    fmt.Fprintf(&paycommand, "\"")
-	    paycommand.WriteString(payoutacct)
-	    fmt.Fprintf(&paycommand, "\" \"{\\\"")
-
-        parse()
         createcommand(adminpay)
 
         var checkpayments float64
@@ -244,14 +253,14 @@ package main
             }
         if checkpayments > customerpay {
             log.Fatal(checkpayments)
-	fmt.Println(checkpayments, customerpay)
+	        fmt.Println(checkpayments, customerpay)
             payabort= true
         }
 
         if (checkpayments + adminpay) > balance {
-                    log.Fatal(balance)
-		fmt.Println(checkpayments, customerpay, balance)
-                    payabort= true
+            log.Fatal(balance)
+		    fmt.Println(checkpayments, customerpay, balance)
+            payabort= true
         }
 
 
@@ -267,7 +276,6 @@ package main
 	    result.WriteString(strconv.FormatFloat(adminpay, 'f', -1, 64))
         result.WriteString("\n")
         result.WriteString("Wallets                             Share    Payout\n")
-
 
         for k := range payments {
 		    result.WriteString(payments[k].Wallet)
@@ -287,8 +295,9 @@ package main
 
         var paycmd string = paycommand.String()
 
-//////////////DEBUG MODE SWITCH set to true for testing
+//////////////DEBUG MODE SWITCH set to true for testing comment out to get real
         payabort = true
+/////////////////////////
 
         if payabort != true {
             cmd := exec.Command(coincli, paycmd)
