@@ -245,11 +245,13 @@ package main
     func main() {
 
         getconfig()
-        custdata()
+        fmt.Println("")
         balance = getbalance()
 
         adminpay = float64(balance * adminpercentage)
         customerpay = float64(balance - adminpay)
+
+        custdata()
 
         createcommand()
 
