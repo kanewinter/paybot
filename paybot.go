@@ -122,6 +122,10 @@ package main
         fmt.Println(out.String())
 
         things, err := strconv.ParseFloat(out.String(), 64)
+                if err != nil {
+        		    fmt.Println("exec error ", err.Error, out.String())
+                	log.Fatal(err)
+                }
 
         fmt.Println(things)
         fmt.Println()
