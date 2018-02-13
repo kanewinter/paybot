@@ -297,7 +297,6 @@ package main
         	err := cmd.Run()
         	if err != nil {
 			fmt.Println("exec error ", err.Error, out.String())
-        		log.Fatal(err)
         	}
         	result.WriteString(out.String())
         }
