@@ -120,8 +120,8 @@ package main
         }
        	//result.WriteString(out.String())
         fmt.Println(out.String())
-
-        things, err := strconv.ParseFloat(out.String(), 64)
+        tmp := strings.TrimSuffix(out.String(), "\n")
+        things, err := strconv.ParseFloat(tmp, 64)
                 if err != nil {
         		    fmt.Println("exec error ", err.Error, out.String())
                 	log.Fatal(err)
