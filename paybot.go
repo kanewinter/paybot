@@ -130,7 +130,7 @@ package main
         fmt.Println(things)
         fmt.Println()
         fmt.Println("returning balance of", things)
-        return things
+        return out.String()
     }
 
 
