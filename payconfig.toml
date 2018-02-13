@@ -1,7 +1,0 @@
-[config]
-coin = "Argo"
-cli = "/home/mentatmind/argo-cli"
-payoutacct = "MN Payout"
-collateral = 10000
-adminwallet = "ANDATUmQhKuT3vYJucqjgfgdTRhUGRykvj"
-adminpercentage = 0.1
