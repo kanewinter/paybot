@@ -82,12 +82,8 @@ package main
                 }
 
             payees.Share = float64(tempshare)
-            fmt.Println(payees.Share)
-            fmt.Println(customerpay)
             payees.Pay = float64((payees.Share / collateral) * customerpay)
-            fmt.Println(payees.Pay)
             payees.Pay = Round(payees.Pay, .5, 2)
-            fmt.Println(payees.Pay)
             payments = append(payments, payees)
 
         }
@@ -250,6 +246,7 @@ package main
 
         adminpay = float64(balance * adminpercentage)
         customerpay = float64(balance - adminpay)
+        adminpay = Round(adminpay, .5, 2)
 
         custdata()
 
