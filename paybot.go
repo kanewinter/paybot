@@ -110,8 +110,6 @@ package main
     func getbalance() (float64) {
         fmt.Println("getting balance")
         balancecmd := "getbalance"
-        fmt.Println(coincli)
-        fmt.Println(balancecmd)
         cmd := exec.Command(coincli, balancecmd)
         var out bytes.Buffer
         cmd.Stdout = &out
@@ -122,9 +120,7 @@ package main
         }
        	//result.WriteString(out.String())
         fmt.Println(out.String())
-        var tmp bytes.Buffer
-        tmp.WriteString(out.String())
-        var stuff string = tmp.String()
+
         things, err := strconv.ParseFloat(out.String(), 64)
 
         fmt.Println(things)
