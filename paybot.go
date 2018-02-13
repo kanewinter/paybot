@@ -125,12 +125,12 @@ package main
         var tmp bytes.Buffer
         tmp.WriteString(out.String())
         var stuff string = tmp.String()
-        things, err := strconv.ParseFloat(stuff, 64)
+        things, err := strconv.ParseFloat(out.String(), 64)
 
         fmt.Println(things)
         fmt.Println()
         fmt.Println("returning balance of", things)
-        return out.String()
+        return things
     }
 
 
