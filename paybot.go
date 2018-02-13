@@ -67,7 +67,7 @@ package main
         file, err := os.Open("customerdata.dat")
         if err != nil {
 		    fmt.Println("error customerdata ", err.Error)
-		    log.Fatal(err)
+		    payabort = true
         }
         scanner := bufio.NewScanner(file)
 
@@ -122,7 +122,7 @@ package main
         err := cmd.Run()
         if err != nil {
 		    fmt.Println("exec error ", err.Error, out.String())
-        	log.Fatal(err)
+        	payabort = true
         }
        	//result.WriteString(out.String())
         fmt.Println(out.String())
@@ -130,7 +130,7 @@ package main
         things, err := strconv.ParseFloat(tmp, 64)
                 if err != nil {
         		    fmt.Println("exec error ", err.Error, tmp)
-                	log.Fatal(err)
+                	payabort = true
                 }
         things = float64(things - collateral - 1)
         things = Round(things, .5, 1)
@@ -261,13 +261,13 @@ package main
             checkpayments= checkpayments + payments[k].Pay
             }
         if checkpayments > customerpay {
-            log.Fatal(checkpayments)
+            payabort = true
 	        fmt.Println(checkpayments, customerpay)
             payabort= true
         }
 
         if (checkpayments + adminpay) > balance {
-            log.Fatal(balance)
+            payabort = true
 		    fmt.Println(checkpayments, customerpay, balance)
             payabort= true
         }
