@@ -1,0 +1,7 @@
+[config]
+coin = "GoByte"
+cli = "/home/mentatmind/argo-cli"
+payoutacct = "BP&C Payout"
+collateral = 1000
+adminwallet = "dhdsjrshrgs"
+adminpercentage = 0.1

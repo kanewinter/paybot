@@ -3,7 +3,7 @@ package main
 
     import (
         "fmt"
-        "io/ioutil"
+        //"io/ioutil"
         "os/exec"
         "encoding/json"
         "bufio"
@@ -15,6 +15,7 @@ package main
 	    "time"
 	    "net/http"
 	    "html/template"
+	    "github.com/spf13/viper"
     )
 
     var adminpay float64
@@ -24,9 +25,13 @@ package main
     var paycommand bytes.Buffer
     var result bytes.Buffer
     var payabort bool = false
-    var collateral float64
-    var coincli string
     var adminwallet string
+    var coin string
+    var coincli string
+    var payoutacct string
+    var collateral float64
+    var adminpercentage float64
+    var err error
 
     func check(e error) {
         if e != nil {
@@ -34,14 +39,6 @@ package main
         }
     }
 
-    type Config struct {
-        coin            string
-        cli             string
-        payoutacct      string
-        coll            float64
-        admin           string
-        adminpercentage float64
-    }
 
 
     type Payee struct {
@@ -76,10 +73,45 @@ package main
         }
     }
 
+    func getconfig() {
+        viper.SetConfigName("payconfig")
+        viper.AddConfigPath(".")
+        err := viper.ReadInConfig()
+        if err != nil {
+            fmt.Println("Config file not found...")
+          } else {
+            coin = viper.GetString("config.coin")
+            coincli = viper.GetString("config.cli")
+            payoutacct = viper.GetString("config.payoutacct")
+            collateral = viper.GetFloat64("config.collateral")
+            adminwallet = viper.GetString("config.adminwallet")
+            adminpercentage = viper.GetFloat64("config.adminpercentage")
+
+            fmt.Printf("\n Config found:\n coin = %s\n cli = %d\n" +
+                " payoutacct = %t\n" +
+                " collateral = %d\n",
+                coin,
+                coincli,
+                payoutacct,
+                collateral)
+                }
+
+
+
+
+
+    }
+
+
+
+
+
+
     func getbalance() (float64) {
 
         balancecmd := "getbalance"
-
+        fmt.Println(coincli)
+        fmt.Println(balancecmd)
         cmd := exec.Command(coincli, balancecmd)
         var out bytes.Buffer
         cmd.Stdout = &out
@@ -191,21 +223,27 @@ package main
 
     func main() {
 
-        datafile, err := ioutil.ReadFile("payconfig.dat")
-        check(err)
-        //fmt.Println(string(datafile))
+        getconfig()
 
-        var payconfig Config
-        json.Unmarshal(datafile, &payconfig)
-        //fmt.Println(interface{}(jsondata))
-        //fmt.Println()
+
+        fmt.Println()
+
+
+
+
+        fmt.Println(payoutacct)
+        fmt.Println(adminwallet)
+        fmt.Println(collateral)
+        fmt.Println(coincli)
+        fmt.Println(adminpercentage)
+
+
+
+
+
 
         balance = getbalance()
-        var payoutacct string = payconfig.payoutacct
-        adminwallet = payconfig.admin
-        collateral = payconfig.coll
-        coincli := payconfig.cli
-        adminpercentage := payconfig.adminpercentage
+
         var adminpay float64 = float64(balance * adminpercentage)
         customerpay = float64(balance - adminpay)
 
