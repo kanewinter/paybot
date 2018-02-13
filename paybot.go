@@ -95,11 +95,6 @@ package main
                 payoutacct,
                 collateral)
                 }
-
-
-
-
-
     }
 
 
@@ -123,13 +118,10 @@ package main
         tmp := strings.TrimSuffix(out.String(), "\n")
         things, err := strconv.ParseFloat(tmp, 64)
                 if err != nil {
-        		    fmt.Println("exec error ", err.Error, out.String())
+        		    fmt.Println("exec error ", err.Error, tmp)
                 	log.Fatal(err)
                 }
-
-        fmt.Println(things)
-        fmt.Println()
-        fmt.Println("returning balance of", things)
+        things = float64(things - collateral - 1)
         return things
     }
 
@@ -295,6 +287,7 @@ package main
 
         var paycmd string = paycommand.String()
 
+//////////////DEBUG MODE SWITCH set to true for testing
         payabort = true
 
         if payabort != true {
