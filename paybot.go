@@ -108,7 +108,7 @@ package main
 
 
     func getbalance() (float64) {
-
+        fmt.Println("getting balance")
         balancecmd := "getbalance"
         fmt.Println(coincli)
         fmt.Println(balancecmd)
@@ -129,7 +129,7 @@ package main
 
         fmt.Println(things)
         fmt.Println()
-
+        fmt.Println("returning balance of", things)
         return things
     }
 
@@ -225,11 +225,7 @@ package main
 
         getconfig()
 
-
         fmt.Println()
-
-
-
 
         fmt.Println(payoutacct)
         fmt.Println(adminwallet)
@@ -237,16 +233,10 @@ package main
         fmt.Println(coincli)
         fmt.Println(adminpercentage)
 
-
-
-
-
-
         balance = getbalance()
 
         var adminpay float64 = float64(balance * adminpercentage)
         customerpay = float64(balance - adminpay)
-
 
         paycommand.WriteString("sendmany ")
 	    fmt.Fprintf(&paycommand, "\"")
