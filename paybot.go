@@ -299,6 +299,7 @@ package main
 	    result.WriteString("\n")
         result.WriteString("Pay Command to be Used \n")
         result.WriteString(coincli)
+        result.WriteString(" ")
 	    result.WriteString(paycommand.String())
 	    result.WriteString("\n")
 
