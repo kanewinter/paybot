@@ -323,7 +323,7 @@ package main
             result.WriteString(strconv.FormatBool(payabort))
             result.WriteString("\n")
             result.WriteString("err variable is: ")
-            result.WriteString(err.Error())
+            //result.WriteString(err.Error())
             result.WriteString("\n")
          }
 
