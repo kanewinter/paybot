@@ -7,7 +7,7 @@ package main
         "os/exec"
         "encoding/json"
         "bufio"
-        "log"
+        //"log"
         "os"
         "strings"
         "strconv"
@@ -308,20 +308,33 @@ package main
         payabort = true
 /////////////////////////
 
+
+        fmt.Println(paycmd)
+
         if payabort != true {
             cmd := exec.Command(coincli, paycmd)
         	var out bytes.Buffer
         	cmd.Stdout = &out
-        	err := cmd.Run()
+        	///TRY THIS   out, err := cmd.CombinedOutput()
+        	stdoutStderr, err := cmd.CombinedOutput()
         	if err != nil {
 			    fmt.Println("exec error ", err.Error, out.String())
         	}
+
+            fmt.Println(stdoutStderr)
+        	tmp := strings.TrimSuffix(out.String(), "\n")
+            fmt.Println(cmd.Stdout)
+            fmt.Print(string(out.Bytes()))
         	fmt.Println(out.String())
         	result.WriteString(out.String())
+        	fmt.Println(tmp)
+            result.WriteString(tmp)
+
         }
 
         if (payabort == true) || (err != nil) {
             result.WriteString("Payout Aborted or failed")
+            result.WriteString("\n")
             result.WriteString("payabort variable is: ")
             result.WriteString(strconv.FormatBool(payabort))
             result.WriteString("\n")
