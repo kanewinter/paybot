@@ -62,6 +62,11 @@ package main
 	    return
     }
 
+    func Truncate(some float64) float64 {
+        return float64(int(some * 100)) / 100
+    }
+
+
     func custdata() {
         // Open file and create scanner on top of it
         file, err := os.Open("customerdata.dat")
@@ -83,7 +88,8 @@ package main
 
             payees.Share = float64(tempshare)
             payees.Pay = float64((payees.Share / collateral) * customerpay)
-            payees.Pay = Round(payees.Pay, .5, 2)
+            payees.Pay = Truncate(payees.Pay)
+            //payees.Pay = Round(payees.Pay, .5, 2)
             payments = append(payments, payees)
 
         }
@@ -133,7 +139,8 @@ package main
                 	payabort = true
                 }
         things = float64(things - collateral - 1)
-        things = Round(things, .5, 1)
+        things = Truncate(things)
+        //things = Round(things, .5, 1)
 
         if things < 20 {
         fmt.Println("Balance too low: ", things)
@@ -318,7 +325,8 @@ package main
         	///TRY THIS   out, err := cmd.CombinedOutput()
         	stdoutStderr, err := cmd.CombinedOutput()
         	if err != nil {
-			    fmt.Println("exec error ", err.Error, out.String())
+        	    out := string(out[:])
+                fmt.Println("exec error ", err.Error, out)
         	}
 
             fmt.Println(stdoutStderr)
