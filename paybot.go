@@ -122,7 +122,7 @@ package main
     func getbalance() (float64) {
         fmt.Println("Getting Balance...")
         balancecmd := "getbalance"
-        cmd := exec.Command(coincli, balancecmd)
+        cmd := exec.Command(coincli, balancecmd, payoutacct)
         var out bytes.Buffer
         cmd.Stdout = &out
         err := cmd.Run()
