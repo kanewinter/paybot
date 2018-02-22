@@ -121,7 +121,7 @@ package main
 
     func getbalance() (float64) {
         fmt.Println("Getting Balance...")
-        balancecmd := "getbalance"
+        balancecmd := "getaddressbalance '{"addresses": ["AZDgBUM6kcSTyqxH2Q4ig3G54xjpvYcynE"]}'"
         cmd := exec.Command(coincli, balancecmd)
         var out bytes.Buffer
         cmd.Stdout = &out
