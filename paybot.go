@@ -121,12 +121,12 @@ package main
 
     func getbalance() (float64) {
         fmt.Println("Getting Balance...")
-        balancecmd := "getaddressbalance '{"addresses": ["AZDgBUM6kcSTyqxH2Q4ig3G54xjpvYcynE"]}'"
+        balancecmd := "getaddressbalance '{\"addresses\": [\"AZDgBUM6kcSTyqxH2Q4ig3G54xjpvYcynE\"]}'"
         cmd := exec.Command(coincli, balancecmd)
         var out bytes.Buffer
         cmd.Stdout = &out
-        err := cmd.Run()
-        if err != nil {
+        out := cmd.CombinedOutput()
+        if out = nil {
 		    fmt.Println("exec error ", err.Error, out.String())
         	payabort = true
         }
