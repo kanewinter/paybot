@@ -325,7 +325,7 @@ package main
         	///TRY THIS   out, err := cmd.CombinedOutput()
         	stdoutStderr, err := cmd.CombinedOutput()
         	if err != nil {
-        	    out := string(out[:])
+        	    //out := string(out[:])
                 fmt.Println("exec error ", err.Error, out)
         	}
 
