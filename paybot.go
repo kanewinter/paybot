@@ -42,38 +42,25 @@ package main
     }
 
 
-
+    //struct for holding payee data
     type Payee struct {
         Wallet     string
         Share     float64
         Pay       float64
     }
 
+    //struct for holding getaddressbalance data
     type Bresult struct {
         Balance  float64
         Received float64
     }
 
-
-    func Round(val float64, roundOn float64, places int ) (newVal float64) {
-	    var round float64
-	    pow := math.Pow(10, float64(places))
-	    digit := pow * val
-	    _, div := math.Modf(digit)
-	    if div >= roundOn {
-	    	round = math.Ceil(digit)
-	    } else {
-	    	round = math.Floor(digit)
-	    }
-	    newVal = round / pow
-	    return
-    }
-
+    //chops everything after 2 decimal places
     func Truncate(some float64) float64 {
         return float64(int(some * 100)) / 100
     }
 
-
+    //parses customerdata.dat for wallet and share amounts
     func custdata() {
         // Open file and create scanner on top of it
         file, err := os.Open("customerdata.dat")
@@ -83,6 +70,7 @@ package main
         }
         scanner := bufio.NewScanner(file)
 
+        //scans line by line to read customerdata and store data in payee
         for scanner.Scan() {
             temp := strings.Split(scanner.Text(), " ")
 
@@ -96,12 +84,13 @@ package main
             payees.Share = float64(tempshare)
             payees.Pay = float64((payees.Share / collateral) * customerpay)
             payees.Pay = Truncate(payees.Pay)
-            //payees.Pay = Round(payees.Pay, .5, 2)
+            //payments is an array of payee
             payments = append(payments, payees)
 
         }
     }
 
+    //parses payconfig.toml to set config for this coin
     func getconfig() {
         viper.SetConfigName("payconfig")
         viper.AddConfigPath(".")
@@ -123,46 +112,42 @@ package main
             fmt.Printf(" payoutacct = %i\n", payoutacct)
             fmt.Printf(" collateral = %h\n", collateral)
             fmt.Printf(" adminwallet = %g\n", adminwallet)
-            fmt.Println(" mnwallet", mnwallet)
+            fmt.Println(" mnwallet = ", mnwallet)
             fmt.Printf(" adminpercentage = %f\n", adminpercentage)
                 }
     }
 
+    //uses getaddressbalance to get a balance for a wallet address. balance has no decimal
     func getbalance() (float64) {
         fmt.Println("Getting Balance...")
         var balancecmd string = "getaddressbalance"
         t := []string{`{"addresses":["`, mnwallet, `"]}`}
         var list string = strings.Join(t, "")
-
-        //////WORKS!!
-        ////var list string = `{"addresses":["AZDgBUM6kcSTyqxH2Q4ig3G54xjpvYcynE"]}`
-        //////////////////
-
         cmd := exec.Command(coincli, balancecmd, list)
         out, err := cmd.CombinedOutput()
         if err != nil {
             fmt.Println("exec error ", err.Error, out)
         	payabort = true
         }
-
         s := string(out[:])
         var bresults Bresult
         outbyte := []byte(s)
-
         err = json.Unmarshal(outbyte, &bresults)
         if err != nil {
                fmt.Println("error:", err)
         }
 
+        //balance has no decimal so this puts it in the right place, this may need to be adjusted per coin project in which case I'll make it a variable for the payconfig
         var tbalance float64 = bresults.Balance / 100000000
         fmt.Println("Curent RAW Balance: ", tbalance)
         result.WriteString("Curent RAW Balance: ")
-	result.WriteString(strconv.FormatFloat(tbalance, 'f', -1, 64))
+	    result.WriteString(strconv.FormatFloat(tbalance, 'f', -1, 64))
         result.WriteString("\n")
         result.WriteString(s)
-        tbalance= float64(tbalance - collateral - 2)
+        tbalance= float64(tbalance - collateral - 1)
         tbalance = Truncate(tbalance)
 
+        //if balance is less than 20 for any reason don't pay out. prevents micro payments, also might need to be adjust per project
         if tbalance < 20 {
             fmt.Println("Balance too low: ", tbalance)
             result.WriteString("Balance too low: ")
@@ -174,49 +159,27 @@ package main
         return tbalance
     }
 
+    //assembles the command string
     func createcommand() (string) {
         p := []string{`{"`, adminwallet, `":`, strconv.FormatFloat(adminpay, 'f', -1, 64), `,"`}
         var p2 string = strings.Join(p, "")
         fmt.Println(p2)
-
-        paycommand.WriteString("sendmany ")
-        fmt.Fprintf(&paycommand, "\"")
-        paycommand.WriteString(payoutacct)
-        fmt.Fprintf(&paycommand, "\" \"{\\\"")
-        paycommand.WriteString(adminwallet)
-        paycommand.WriteString("\\\":")
-	    paycommand.WriteString(strconv.FormatFloat(adminpay, 'f', -1, 64))
-        paycommand.WriteString(",\\\"")
-
         for k := range payments {
-      	    tempwallet:= string(payments[k].Wallet)
-      	    paycommand.WriteString(tempwallet)
-      	    paycommand.WriteString("\\\":")
-      	    temppay := strconv.FormatFloat(payments[k].Pay, 'f', -1, 64)
-      	    paycommand.WriteString(temppay)
-            p := []string{p2, tempwallet, `":`, strconv.FormatFloat(payments[k].Pay, 'f', -1, 64)}
+            p := []string{p2, string(payments[k].Wallet), `":`, strconv.FormatFloat(payments[k].Pay, 'f', -1, 64)}
             p2 = strings.Join(p, "")
-            fmt.Println(p2)
-
-
       	    if (k+1) < len(payments) {
-      	    paycommand.WriteString(",\\\"")
-	    p := []string{p2, `,"`}
-      	    p2 = strings.Join(p, "")
+        	    p := []string{p2, `,"`}
+      	        p2 = strings.Join(p, "")
       	    }
       	}
-      	paycommand.WriteString("}\"")
-	p = []string{p2, `}`}
+	    p = []string{p2, `}`}
       	p2 = strings.Join(p, "")
-	fmt.Println(p2)
-	return p2
+    	return p2
     }
 
-
     func notification() {
-
         fmt.Println("Sending Email")
-
+        //api keys for email forwarder, will have to be variables and secured so it's not on github
         var MJ_APIKEY_PUBLIC string= "cb9872db45f62a1e4b67ded1736d85a1"
         var MJ_APIKEY_PRIVATE string= "b211992104c42942713d8c4cacad7ad2"
 
@@ -233,6 +196,7 @@ package main
 	        Recipients []Recipient `json:"Recipients"`
         }
 
+        //need to learn how to create JSON with a list of emails so I can email customers reports
         //emaillist:= Recipient{"admin@kane.ventures"}
         emaillist:= Recipient{"kane4ventures@gmail.com"}
 
@@ -287,10 +251,12 @@ package main
         getconfig()
         fmt.Println("")
         balance = getbalance()
+        fmt.Println("")
 
+        //adminpay is % of balance, that it deducted from balance and the rest split among cust according to share
         adminpay = float64(balance * adminpercentage)
+        adminpay = Truncate(adminpay)
         customerpay = float64(balance - adminpay)
-        adminpay = Round(adminpay, .5, 2)
 
         custdata()
 
@@ -302,17 +268,14 @@ package main
             }
         if checkpayments > customerpay {
             payabort = true
-	        fmt.Println(checkpayments, customerpay)
+	        fmt.Println("checkpayments > customerpay    ", checkpayments, customerpay)
             payabort= true
         }
-
         if (checkpayments + adminpay) > balance {
             payabort = true
-		    fmt.Println(checkpayments, customerpay, balance)
+		    fmt.Println("payments and adminpay higher than balance     ", checkpayments, customerpay, balance)
             payabort= true
         }
-
-
 
         result.WriteString("Payout Report ")
 	    result.WriteString(time.Now().Format(time.RFC850))
@@ -338,43 +301,25 @@ package main
 	    result.WriteString("\n")
         result.WriteString("Pay Command to be Used \n")
         result.WriteString(coincli)
-        result.WriteString(" ")
+        result.WriteString(" sendmany ")
 	    result.WriteString(paycmd)
 	    result.WriteString("\n")
 
-        //var paycmd string = paycommand.String()
-	
-
 //////////////DEBUG MODE SWITCH set to true for testing comment out to get real
-//        payabort = true
+                               payabort = true
 /////////////////////////
 
-
-        //fmt.Println(paycmd)
-
         if payabort != true {
-	fmt.Println("######PAY COMMAND")
-	fmt.Println(paycmd)
-	fmt.Println("/n")
-cmd := exec.Command(coincli, `sendmany`, payoutacct, paycmd)
-       //     cmd := exec.Command(coincli, `sendmany`, paycmd)
-        	out, err := cmd.CombinedOutput()
-        	if err != nil {
-        	    e := string(out[:])
+            cmd := exec.Command(coincli, `sendmany`, payoutacct, paycmd)
+            out, err := cmd.CombinedOutput()
+            if err != nil {
+                e := string(out[:])
                 fmt.Println("exec error ", err.Error, e)
-        	}
-	fmt.Println(cmd)
-	e := string(out[:])
-	fmt.Println(e)
-
-        //	tmp := strings.TrimSuffix(out.String(), "\n")
-            //fmt.Println(cmd.Stdout)
-            //fmt.Print(string(out.Bytes()))
-        	//fmt.Println(out.String())
-        	//result.WriteString(out.String())
-        	//fmt.Println(tmp)
-            //result.WriteString(tmp)
-
+            }
+            e := string(out[:])
+            result.WriteString("Paycommand Output\n")
+            result.WriteString(e)
+            result.WriteString("\n")
         }
 
         if (payabort == true) || (err != nil) {
@@ -383,12 +328,7 @@ cmd := exec.Command(coincli, `sendmany`, payoutacct, paycmd)
             result.WriteString("payabort variable is: ")
             result.WriteString(strconv.FormatBool(payabort))
             result.WriteString("\n")
-            result.WriteString("err variable is: ")
-            //result.WriteString(err.Error())
-            result.WriteString("\n")
-         }
+        }
 
-         notification()
-
-
+        notification()
 }
