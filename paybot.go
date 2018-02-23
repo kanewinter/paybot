@@ -13,7 +13,7 @@ package main
         "strconv"
         "bytes"
 	    "time"
-	    "math"
+	    //"math"
 	    "net/http"
 	    "html/template"
 	    "github.com/spf13/viper"
@@ -163,7 +163,6 @@ package main
     func createcommand() (string) {
         p := []string{`{"`, adminwallet, `":`, strconv.FormatFloat(adminpay, 'f', -1, 64), `,"`}
         var p2 string = strings.Join(p, "")
-        fmt.Println(p2)
         for k := range payments {
             p := []string{p2, string(payments[k].Wallet), `":`, strconv.FormatFloat(payments[k].Pay, 'f', -1, 64)}
             p2 = strings.Join(p, "")
