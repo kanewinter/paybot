@@ -27,6 +27,7 @@ package main
     var result bytes.Buffer
     var payabort bool = false
     var adminwallet string
+    var mnwallet string
     var coin string
     var coincli string
     var payoutacct string
@@ -114,6 +115,7 @@ package main
             payoutacct = viper.GetString("config.payoutacct")
             collateral = viper.GetFloat64("config.collateral")
             adminwallet = viper.GetString("config.adminwallet")
+            mnwallet = viper.GetString("config.mnwallet")
             adminpercentage = viper.GetFloat64("config.adminpercentage")
 
             fmt.Printf("\n Config found:\n coin = %s\n", coin)
@@ -121,6 +123,7 @@ package main
             fmt.Printf(" payoutacct = %i\n", payoutacct)
             fmt.Printf(" collateral = %h\n", collateral)
             fmt.Printf(" adminwallet = %g\n", adminwallet)
+            fmt.Println(" mnwallet", mnwallet)
             fmt.Printf(" adminpercentage = %f\n", adminpercentage)
                 }
     }
@@ -128,8 +131,7 @@ package main
     func getbalance() (float64) {
         fmt.Println("Getting Balance...")
         var balancecmd string = "getaddressbalance"
-        var address string = "AZDgBUM6kcSTyqxH2Q4ig3G54xjpvYcynE"
-        t := []string{`{"addresses":["`, address, `"]}`}
+        t := []string{`{"addresses":["`, mnwallet, `"]}`}
         var list string = strings.Join(t, "")
 
         //////WORKS!!
@@ -154,14 +156,17 @@ package main
 
         var tbalance float64 = bresults.Balance / 100000000
         fmt.Println("Curent RAW Balance: ", tbalance)
+        result.WriteString("Curent RAW Balance: ")
+        result.WriteString(tbalance)
+        result.WriteString("\n")
         result.WriteString(s)
         tbalance= float64(tbalance - collateral - 2)
         tbalance = Truncate(tbalance)
 
         if tbalance < 20 {
             fmt.Println("Balance too low: ", tbalance)
-            result.WriteString(strconv.FormatFloat(tbalance, 'f', -1, 64))
             result.WriteString("Balance too low: ")
+            result.WriteString(strconv.FormatFloat(tbalance, 'f', -1, 64))
             result.WriteString("\n")
             payabort= true
         }
