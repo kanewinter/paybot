@@ -48,6 +48,12 @@ package main
         Pay       float64
     }
 
+    type Bresult struct {
+        Balance  float64
+        Received float64
+    }
+
+
     func Round(val float64, roundOn float64, places int ) (newVal float64) {
 	    var round float64
 	    pow := math.Pow(10, float64(places))
@@ -121,36 +127,46 @@ package main
 
     func getbalance() (float64) {
         fmt.Println("Getting Balance...")
-        balancecmd := "getaddressbalance '{\"addresses\": [\"AZDgBUM6kcSTyqxH2Q4ig3G54xjpvYcynE\"]}'"
-        cmd := exec.Command(coincli, balancecmd)
-        var out bytes.Buffer
-        cmd.Stdout = &out
-        out := cmd.CombinedOutput()
-        if out = nil {
-		    fmt.Println("exec error ", err.Error, out.String())
+        var balancecmd string = "getaddressbalance"
+        var address string = "AZDgBUM6kcSTyqxH2Q4ig3G54xjpvYcynE"
+        t := []string{`{"addresses":["`, address, `"]}`}
+        var list string = strings.Join(t, "")
+
+        //////WORKS!!
+        ////var list string = `{"addresses":["AZDgBUM6kcSTyqxH2Q4ig3G54xjpvYcynE"]}`
+        //////////////////
+
+        cmd := exec.Command(coincli, balancecmd, list)
+        out, err := cmd.CombinedOutput()
+        if err != nil {
+            fmt.Println("exec error ", err.Error, out)
         	payabort = true
         }
-       	//result.WriteString(out.String())
-        fmt.Println(out.String())
-        tmp := strings.TrimSuffix(out.String(), "\n")
-        things, err := strconv.ParseFloat(tmp, 64)
-                if err != nil {
-        		    fmt.Println("exec error ", err.Error, tmp)
-                	payabort = true
-                }
-        things = float64(things - collateral - 1)
-        things = Truncate(things)
-        //things = Round(things, .5, 1)
 
-        if things < 20 {
-        fmt.Println("Balance too low: ", things)
-        result.WriteString("Balance too low: ")
-        result.WriteString(strconv.FormatFloat(things, 'f', -1, 64))
-        result.WriteString("\n")
-        payabort= true
+        s := string(out[:])
+        var bresults Bresult
+        outbyte := []byte(s)
+
+        err = json.Unmarshal(outbyte, &bresults)
+        if err != nil {
+               fmt.Println("error:", err)
         }
 
-        return things
+        var tbalance float64 = bresults.Balance / 100000000
+        fmt.Println("Curent RAW Balance: ", tbalance)
+        result.WriteString(s)
+        tbalance= float64(tbalance - collateral - 2)
+        tbalance = Truncate(tbalance)
+
+        if tbalance < 20 {
+            fmt.Println("Balance too low: ", tbalance)
+            result.WriteString(strconv.FormatFloat(tbalance, 'f', -1, 64))
+            result.WriteString("Balance too low: ")
+            result.WriteString("\n")
+            payabort= true
+        }
+
+        return tbalance
     }
 
 
@@ -316,7 +332,7 @@ package main
 /////////////////////////
 
 
-        fmt.Println(paycmd)
+        //fmt.Println(paycmd)
 
         if payabort != true {
             cmd := exec.Command(coincli, paycmd)
