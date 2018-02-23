@@ -157,7 +157,7 @@ package main
         var tbalance float64 = bresults.Balance / 100000000
         fmt.Println("Curent RAW Balance: ", tbalance)
         result.WriteString("Curent RAW Balance: ")
-        result.WriteString(tbalance)
+	result.WriteString(strconv.FormatFloat(tbalance, 'f', -1, 64))
         result.WriteString("\n")
         result.WriteString(s)
         tbalance= float64(tbalance - collateral - 2)
@@ -174,8 +174,10 @@ package main
         return tbalance
     }
 
-
-    func createcommand() {
+    func createcommand() (string) {
+        p := []string{`{"`, adminwallet, `":`, strconv.FormatFloat(adminpay, 'f', -1, 64), `,"`}
+        var p2 string = strings.Join(p, "")
+        fmt.Println(p2)
 
         paycommand.WriteString("sendmany ")
         fmt.Fprintf(&paycommand, "\"")
@@ -192,14 +194,24 @@ package main
       	    paycommand.WriteString("\\\":")
       	    temppay := strconv.FormatFloat(payments[k].Pay, 'f', -1, 64)
       	    paycommand.WriteString(temppay)
+            p := []string{p2, tempwallet, `":`, strconv.FormatFloat(payments[k].Pay, 'f', -1, 64)}
+            p2 = strings.Join(p, "")
+            fmt.Println(p2)
+
 
       	    if (k+1) < len(payments) {
       	    paycommand.WriteString(",\\\"")
+	    p := []string{p2, `,"`}
+      	    p2 = strings.Join(p, "")
       	    }
       	}
       	paycommand.WriteString("}\"")
-
+	p = []string{p2, `}`}
+      	p2 = strings.Join(p, "")
+	fmt.Println(p2)
+	return p2
     }
+
 
     func notification() {
 
@@ -282,7 +294,7 @@ package main
 
         custdata()
 
-        createcommand()
+        paycmd := createcommand()
 
         var checkpayments float64
         for k := range payments {
@@ -327,37 +339,41 @@ package main
         result.WriteString("Pay Command to be Used \n")
         result.WriteString(coincli)
         result.WriteString(" ")
-	    result.WriteString(paycommand.String())
+	    result.WriteString(paycmd)
 	    result.WriteString("\n")
 
-        var paycmd string = paycommand.String()
+        //var paycmd string = paycommand.String()
+	
 
 //////////////DEBUG MODE SWITCH set to true for testing comment out to get real
-        payabort = true
+//        payabort = true
 /////////////////////////
 
 
         //fmt.Println(paycmd)
 
         if payabort != true {
-            cmd := exec.Command(coincli, paycmd)
-        	var out bytes.Buffer
-        	cmd.Stdout = &out
-        	///TRY THIS   out, err := cmd.CombinedOutput()
-        	stdoutStderr, err := cmd.CombinedOutput()
+	fmt.Println("######PAY COMMAND")
+	fmt.Println(paycmd)
+	fmt.Println("/n")
+cmd := exec.Command(coincli, `sendmany`, payoutacct, paycmd)
+       //     cmd := exec.Command(coincli, `sendmany`, paycmd)
+        	out, err := cmd.CombinedOutput()
         	if err != nil {
-        	    //out := string(out[:])
-                fmt.Println("exec error ", err.Error, out)
+        	    e := string(out[:])
+                fmt.Println("exec error ", err.Error, e)
         	}
+	fmt.Println(cmd)
+	e := string(out[:])
+	fmt.Println(e)
 
-            fmt.Println(stdoutStderr)
-        	tmp := strings.TrimSuffix(out.String(), "\n")
-            fmt.Println(cmd.Stdout)
-            fmt.Print(string(out.Bytes()))
-        	fmt.Println(out.String())
-        	result.WriteString(out.String())
-        	fmt.Println(tmp)
-            result.WriteString(tmp)
+        //	tmp := strings.TrimSuffix(out.String(), "\n")
+            //fmt.Println(cmd.Stdout)
+            //fmt.Print(string(out.Bytes()))
+        	//fmt.Println(out.String())
+        	//result.WriteString(out.String())
+        	//fmt.Println(tmp)
+            //result.WriteString(tmp)
 
         }
 
