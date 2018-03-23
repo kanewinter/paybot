@@ -58,7 +58,7 @@ package main
         Adminwallet     string
         Mnwallet        string
         Adminpercentage float64
-        Payinfo         []*Payee{}
+        Payinfo         []*Payee
     }
 
     //struct for holding getaddressbalance data
@@ -128,6 +128,7 @@ package main
     //uses getaddressbalance to get a balance for a wallet address. balance has no decimal
     func getbalance() (float64) {
         fmt.Println("Getting Balance...")
+        var out []byte
         switch info.Coin {
             case "Shekel":
                 var balancecmd string = "getbalance"
@@ -135,7 +136,7 @@ package main
                 out, err := cmd.CombinedOutput()
             default:
                 var balancecmd string = "getaddressbalance"
-                t := []string{`{"addresses":["`, mnwallet, `"]}`}
+                t := []string{`{"addresses":["`, info.Mnwallet, `"]}`}
                 var list string = strings.Join(t, "")
                 cmd := exec.Command(info.Coincli, balancecmd, list)
                 out, err := cmd.CombinedOutput()
@@ -251,6 +252,8 @@ package main
 
     func main() {
 
+        custdata()
+
         getconfig()
         fmt.Println("")
         balance = getbalance()
@@ -260,8 +263,6 @@ package main
         adminpay = float64(balance * info.Adminpercentage)
         adminpay = Truncate(adminpay)
         customerpay = float64(balance - adminpay)
-
-        custdata()
 
         paycmd := createcommand()
 
