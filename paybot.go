@@ -129,17 +129,19 @@ package main
     func getbalance() (float64) {
         fmt.Println("Getting Balance...")
 
-        if info.Coin = "Shekel" {
+        if info.Coin == "Shekel" {
             var balancecmd string = "getbalance"
             cmd := exec.Command(info.Coincli, balancecmd)
+            out, err := cmd.CombinedOutput()
         } else {
             var balancecmd string = "getaddressbalance"
             t := []string{`{"addresses":["`, info.Mnwallet, `"]}`}
             var list string = strings.Join(t, "")
             cmd := exec.Command(info.Coincli, balancecmd, list)
+            out, err := cmd.CombinedOutput()
         }
 
-        out, err := cmd.CombinedOutput()
+
 
         if err != nil {
             fmt.Println("exec error ", err.Error, out)
