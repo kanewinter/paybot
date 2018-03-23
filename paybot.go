@@ -58,6 +58,7 @@ package main
         Adminwallet     string
         Mnwallet        string
         Adminpercentage float64
+        Payinfo         []*Payee{}
     }
 
     //struct for holding getaddressbalance data
@@ -112,6 +113,7 @@ package main
             info.Adminwallet = viper.GetString("config.adminwallet")
             info.Mnwallet = viper.GetString("config.mnwallet")
             info.Adminpercentage = viper.GetFloat64("config.adminpercentage")
+            info.Payinfo = payments
             fmt.Printf("\n Config found:\n coin = %s\n", info.Coin)
             fmt.Printf(" coin-cli = %j\n", info.Coincli)
             fmt.Printf(" payoutacct = %i\n", info.Payoutacct)
@@ -119,6 +121,7 @@ package main
             fmt.Printf(" adminwallet = %g\n", info.Adminwallet)
             fmt.Println(" mnwallet = ", info.Mnwallet)
             fmt.Printf(" adminpercentage = %f\n", info.Adminpercentage)
+            fmt.Println(" Pay Info = ", info.Payinfo)
         }
     }
 
@@ -129,13 +132,15 @@ package main
             case "Shekel":
                 var balancecmd string = "getbalance"
                 cmd := exec.Command(info.Coincli, balancecmd)
+                out, err := cmd.CombinedOutput()
             default:
                 var balancecmd string = "getaddressbalance"
                 t := []string{`{"addresses":["`, mnwallet, `"]}`}
                 var list string = strings.Join(t, "")
                 cmd := exec.Command(info.Coincli, balancecmd, list)
+                out, err := cmd.CombinedOutput()
         }
-        out, err := cmd.CombinedOutput()
+
         if err != nil {
             fmt.Println("exec error ", err.Error, out)
             payabort = true
@@ -207,7 +212,7 @@ package main
             s := ""
             buf := bytes.NewBufferString(s)
             t, _ := template.ParseFiles("email.html")
-            t.Execute(buf, payments, info)
+            t.Execute(buf, info)
             data := Payload{
                 FromEmail: "paybot@kane.ventures",
                 FromName: "Paybot",
