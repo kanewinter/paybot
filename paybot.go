@@ -118,8 +118,41 @@ package main
         }
     }
 
-    //uses getaddressbalance to get a balance for a wallet address. balance has no decimal
     func getbalance() (float64) {
+        fmt.Println("Getting Balance...")
+
+        balancecmd = "getbalance"
+        cmd = exec.Command(info.Coincli, balancecmd)
+        out, err := cmd.CombinedOutput()
+        if err != nil {
+            fmt.Println("exec error ", err.Error, out)
+            payabort = true
+        }
+
+        s := string(out[:])
+
+        //balance has no decimal so this puts it in the right place, this may need to be adjusted per coin project in which case I'll make it a variable for the payconfig
+        var tbalance float64 = s / 100000000
+
+        fmt.Println("Curent RAW Balance: ", tbalance)
+        result.WriteString("Curent RAW Balance: ")
+        result.WriteString(strconv.FormatFloat(tbalance, 'f', -1, 64))
+        result.WriteString("\n")
+        result.WriteString(s)
+        tbalance= float64(tbalance - info.Collateral - 0.01)
+        tbalance = Truncate(tbalance)
+        //if balance is less than 20 for any reason don't pay out. prevents micro payments, also might need to be adjust per project
+        if tbalance < 20 {
+            fmt.Println("Balance too low: ", tbalance)
+            result.WriteString("Balance too low: ")
+            result.WriteString(strconv.FormatFloat(tbalance, 'f', -1, 64))
+            result.WriteString("\n")
+            payabort= true
+        }
+        return tbalance
+    }
+
+    func getaddressbalance() (float64) {
         fmt.Println("Getting Balance...")
 
         var balancecmd string = "getaddressbalance"
@@ -127,17 +160,13 @@ package main
         var list string = strings.Join(t, "")
         cmd := exec.Command(info.Coincli, balancecmd, list)
 
-        if info.Coin == "Shekel" {
-            balancecmd = "getbalance"
-            cmd = exec.Command(info.Coincli, balancecmd)
-        }
-
         out, err := cmd.CombinedOutput()
 
         if err != nil {
             fmt.Println("exec error ", err.Error, out)
             payabort = true
         }
+
         s := string(out[:])
         var bresults Bresult
         outbyte := []byte(s)
@@ -164,6 +193,8 @@ package main
         }
         return tbalance
     }
+
+
 
     //assembles the command string
     func createcommand() (string) {
@@ -247,7 +278,10 @@ package main
         getconfig() 
 
         fmt.Println("")
+        if info.Coin == "Shekel" {
         info.Rbalance = getbalance()
+        }
+        info.Rbalance = getaddressbalance()
         fmt.Println("")
 
         //adminpay is % of balance, that it deducted from balance and the rest split among cust according to share
