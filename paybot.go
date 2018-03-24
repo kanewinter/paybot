@@ -50,7 +50,7 @@ package main
         Payinfo         []*Payee
         Rbalance        float64
         Adminfee        float64
-        Custpayout      float4
+        Custpayout      float64
         Cmdstring       string
         Tx              string
         Date            string
@@ -269,7 +269,7 @@ package main
             payabort = true
             fmt.Println("checkpayments > info.Custpayout    ", checkpayments, info.Custpayout)
         }
-        if (checkpayments + info.Adminfee) > balance {
+        if (checkpayments + info.Adminfee) > info.Rbalance {
             payabort = true
             fmt.Println("payments and adminpay higher than balance     ", checkpayments, info.Custpayout, info.Rbalance)
         }

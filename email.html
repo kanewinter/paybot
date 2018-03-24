@@ -1,6 +1,5 @@
 <html>
 <body>
-{{range .}}
 <p>Payout Report {{.Date}}</p>
 <p>BP&C Payout {{.Custpayout}}</p>
 <p>Admin Pay {{.Adminfee}}</p>
@@ -8,7 +7,6 @@
 <p>Pay Command to be Used</p>
 <p>{{.Cmdstring}}</p>
 <p>Transaction ID {{.Tx}}</p>
-{{end}}
 <br><br>
 Wallet                             Share    Payout<br>
 {{range .Payinfo}}
