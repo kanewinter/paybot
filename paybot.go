@@ -90,7 +90,7 @@ package main
                 if err == nil {
                 }
             payees.Share = float64(tempshare)
-            payees.Pay = float64((payees.Share / collateral) * customerpay)
+            payees.Pay = float64((payees.Share / info.Collateral) * customerpay)
             payees.Pay = Truncate(payees.Pay)
             //payments is an array of payee
             payments = append(payments, payees)
@@ -113,7 +113,6 @@ package main
             info.Adminwallet = viper.GetString("config.adminwallet")
             info.Mnwallet = viper.GetString("config.mnwallet")
             info.Adminpercentage = viper.GetFloat64("config.adminpercentage")
-            info.Payinfo = payments
             fmt.Printf("\n Config found:\n coin = %s\n", info.Coin)
             fmt.Printf(" coin-cli = %j\n", info.Coincli)
             fmt.Printf(" payoutacct = %i\n", info.Payoutacct)
@@ -121,7 +120,6 @@ package main
             fmt.Printf(" adminwallet = %g\n", info.Adminwallet)
             fmt.Println(" mnwallet = ", info.Mnwallet)
             fmt.Printf(" adminpercentage = %f\n", info.Adminpercentage)
-            fmt.Println(" Pay Info = ", info.Payinfo)
         }
     }
 
@@ -129,14 +127,14 @@ package main
     func getbalance() (float64) {
         fmt.Println("Getting Balance...")
 
+        var balancecmd string = "getaddressbalance"
+        t := []string{`{"addresses":["`, info.Mnwallet, `"]}`}
+        var list string = strings.Join(t, "")
+        cmd := exec.Command(info.Coincli, balancecmd, list)
+
         if info.Coin == "Shekel" {
-            var balancecmd string = "getbalance"
-            cmd := exec.Command(info.Coincli, balancecmd)
-        } else {
-            var balancecmd string = "getaddressbalance"
-            t := []string{`{"addresses":["`, info.Mnwallet, `"]}`}
-            var list string = strings.Join(t, "")
-            cmd := exec.Command(info.Coincli, balancecmd, list)
+            balancecmd = "getbalance"
+            cmd = exec.Command(info.Coincli, balancecmd)
         }
 
         out, err := cmd.CombinedOutput()
@@ -159,7 +157,7 @@ package main
         result.WriteString(strconv.FormatFloat(tbalance, 'f', -1, 64))
         result.WriteString("\n")
         result.WriteString(s)
-        tbalance= float64(tbalance - collateral - 1)
+        tbalance= float64(tbalance - info.Collateral - 1)
         tbalance = Truncate(tbalance)
         //if balance is less than 20 for any reason don't pay out. prevents micro payments, also might need to be adjust per project
         if tbalance < 20 {
@@ -251,9 +249,8 @@ package main
 
     func main() {
 
-        custdata()
+        getconfig() 
 
-        getconfig()
         fmt.Println("")
         balance = getbalance()
         fmt.Println("")
@@ -262,6 +259,10 @@ package main
         adminpay = float64(balance * info.Adminpercentage)
         adminpay = Truncate(adminpay)
         customerpay = float64(balance - adminpay)
+
+        custdata()  
+
+        info.Payinfo = payments
 
         paycmd := createcommand()
 
