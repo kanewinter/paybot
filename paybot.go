@@ -152,7 +152,7 @@ package main
         result.WriteString(strconv.FormatFloat(tbalance, 'f', -1, 64))
         result.WriteString("\n")
         result.WriteString(s)
-        tbalance= float64(tbalance - info.Collateral - 1)
+        tbalance= float64(tbalance - info.Collateral - 0.01)
         tbalance = Truncate(tbalance)
         //if balance is less than 20 for any reason don't pay out. prevents micro payments, also might need to be adjust per project
         if tbalance < 20 {
