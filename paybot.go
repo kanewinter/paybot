@@ -19,20 +19,9 @@ package main
         "github.com/spf13/viper"
     )
 
-    var adminpay float64
-    var customerpay float64
-    var balance float64
     var payments= []*Payee{}
-    var paycommand bytes.Buffer
     var result bytes.Buffer
     var payabort bool = false
-    var adminwallet string
-    var mnwallet string
-    var coin string
-    var coincli string
-    var payoutacct string
-    var collateral float64
-    var adminpercentage float64
     var err error
     var info= Config{}
 
@@ -42,7 +31,6 @@ package main
         }
     }
 
-
     //struct for holding payee data
     type Payee struct {
         Wallet     string
@@ -51,6 +39,7 @@ package main
     }
 
     type Config struct {
+        Customer        string
         Coin            string
         Coincli         string
         Payoutacct      string
@@ -59,6 +48,12 @@ package main
         Mnwallet        string
         Adminpercentage float64
         Payinfo         []*Payee
+        Rbalance        float64
+        Adminfee        float64
+        Custpayout      float4
+        Cmdstring       string
+        Tx              string
+        Date            string
     }
 
     //struct for holding getaddressbalance data
@@ -90,7 +85,7 @@ package main
                 if err == nil {
                 }
             payees.Share = float64(tempshare)
-            payees.Pay = float64((payees.Share / info.Collateral) * customerpay)
+            payees.Pay = float64((payees.Share / info.Collateral) * info.Custpayout)
             payees.Pay = Truncate(payees.Pay)
             //payments is an array of payee
             payments = append(payments, payees)
@@ -172,7 +167,7 @@ package main
 
     //assembles the command string
     func createcommand() (string) {
-        p := []string{`{"`, info.Adminwallet, `":`, strconv.FormatFloat(adminpay, 'f', -1, 64), `,"`}
+        p := []string{`{"`, info.Adminwallet, `":`, strconv.FormatFloat(info.Adminfee, 'f', -1, 64), `,"`}
         var p2 string = strings.Join(p, "")
         for k := range payments {
             p := []string{p2, string(payments[k].Wallet), `":`, strconv.FormatFloat(payments[k].Pay, 'f', -1, 64)}
@@ -252,42 +247,43 @@ package main
         getconfig() 
 
         fmt.Println("")
-        balance = getbalance()
+        info.Rbalance = getbalance()
         fmt.Println("")
 
         //adminpay is % of balance, that it deducted from balance and the rest split among cust according to share
-        adminpay = float64(balance * info.Adminpercentage)
-        adminpay = Truncate(adminpay)
-        customerpay = float64(balance - adminpay)
+        info.Adminfee = float64(info.Rbalance * info.Adminpercentage)
+        info.Adminfee = Truncate(info.Adminfee)
+        info.Custpayout = float64(info.Rbalance - info.Adminfee)
 
         custdata()  
 
         info.Payinfo = payments
 
-        paycmd := createcommand()
+        info.Cmdstring = createcommand()
 
         var checkpayments float64
         for k := range payments {
             checkpayments= checkpayments + payments[k].Pay
             }
-        if checkpayments > customerpay {
+        if checkpayments > info.Custpayout {
             payabort = true
-            fmt.Println("checkpayments > customerpay    ", checkpayments, customerpay)
+            fmt.Println("checkpayments > info.Custpayout    ", checkpayments, info.Custpayout)
         }
-        if (checkpayments + adminpay) > balance {
+        if (checkpayments + info.Adminfee) > balance {
             payabort = true
-            fmt.Println("payments and adminpay higher than balance     ", checkpayments, customerpay, balance)
+            fmt.Println("payments and adminpay higher than balance     ", checkpayments, info.Custpayout, info.Rbalance)
         }
 
         result.WriteString("Payout Report ")
         result.WriteString(time.Now().Format(time.RFC850))
+        info.Date = time.Now().Format(time.RFC850)
         result.WriteString("\n")
         result.WriteString(info.Payoutacct)
-	result.WriteString(" ")
-	result.WriteString(strconv.FormatFloat(balance, 'f', -1, 64))
-	result.WriteString("\n")
+	    result.WriteString(" ")
+	    result.WriteString(strconv.FormatFloat(info.Rbalance, 'f', -1, 64))
+	    result.WriteString("\n")
         result.WriteString("Admin Pay ")
-	result.WriteString(strconv.FormatFloat(adminpay, 'f', -1, 64))
+	    result.WriteString(strconv.FormatFloat(info.Adminfee, 'f', -1, 64))
         result.WriteString("\n")
         result.WriteString("Wallets                             Share    Payout\n")
 
@@ -304,7 +300,7 @@ package main
         result.WriteString("Pay Command to be Used \n")
         result.WriteString(info.Coincli)
         result.WriteString(" sendmany ")
-	result.WriteString(paycmd)
+	result.WriteString(info.Cmdstring)
 	result.WriteString("\n")
 
 //////////////DEBUG MODE SWITCH set to true for testing comment out to get real
@@ -312,7 +308,7 @@ package main
 /////////////////////////
 
         if payabort != true {
-            cmd := exec.Command(info.Coincli, `sendmany`, info.Payoutacct, paycmd)
+            cmd := exec.Command(info.Coincli, `sendmany`, info.Payoutacct, info.Cmdstring)
             out, err := cmd.CombinedOutput()
             if err != nil {
                 e := string(out[:])
@@ -321,6 +317,7 @@ package main
             e := string(out[:])
             result.WriteString("Paycommand Output\n")
             result.WriteString(e)
+            info.Tx = e
             result.WriteString("\n")
         }
 

@@ -1,16 +1,19 @@
 <html>
-<body> 
-<p>Payout Report Tuesday, 16-Jan-18 20:32:43 EST</p>
-<p>BP&C Payout 122.5</p>
-<p>Admin Pay 12.25</p>
-
-Wallets                             Share    Payout<br>
+<body>
 {{range .}}
-<p>{{.Wallet}}                             {{.Share}}        {{.Pay}}</p>
-{{end}}
+<p>Payout Report {{.Date}}</p>
+<p>BP&C Payout {{.Custpayout}}</p>
+<p>Admin Pay {{.Adminfee}}</p>
 
 <p>Pay Command to be Used</p>
-sendmany "BP&C Payout" "{\"dfhsdfgdfgnfjdsgdfsgkmlsmkgrimnn\":12.25,\"aghrgrwagnrjngnrlgnrngnrngrangnr\":11.025,\"dsgfmgnlngkgmlfmglmfslmgmfgkmfsk\":22.05,\"fdgjfngjnfngjnfdngnfjgagrargrgfd\":33.074999999999996,\"rgnrjlngfvdibkrgebjsknvrfkegnsjr\":44.1}"
+<p>{{.Cmdstring}}</p>
+<p>Transaction ID {{.Tx}}</p>
+{{end}}
+<br><br>
+Wallet                             Share    Payout<br>
+{{range .Payinfo}}
+<p>{{.Wallet}}                             {{.Share}}        {{.Pay}}</p>
+{{end}}
 
 </body>
 </html>
