@@ -282,10 +282,8 @@ package main
         fmt.Println("")
         if info.Coin == "Shekel" {
             info.Rbalance = getbalance()
-        } else {
-            if info.Coin == "Advance" {
+        } else if info.Coin == "Advance" {
                 info.Rbalance = getbalance()
-            }
         } else {
             info.Rbalance = getaddressbalance()
         }
