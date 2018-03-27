@@ -121,8 +121,8 @@ package main
     func getbalance() (float64) {
         fmt.Println("Getting Balance...")
 
-        balancecmd = "getbalance"
-        cmd = exec.Command(info.Coincli, balancecmd)
+        balancecmd := "getbalance"
+        cmd := exec.Command(info.Coincli, balancecmd)
         out, err := cmd.CombinedOutput()
         if err != nil {
             fmt.Println("exec error ", err.Error, out)
@@ -130,7 +130,7 @@ package main
         }
 
         s := string(out[:])
-
+        s = strconv.ParseFloat(s, 64)
         //balance has no decimal so this puts it in the right place, this may need to be adjusted per coin project in which case I'll make it a variable for the payconfig
         var tbalance float64 = s / 100000000
 
@@ -275,13 +275,18 @@ package main
 
     func main() {
 
+        fmt.Println("Starting...")
+
         getconfig() 
 
         fmt.Println("")
-        if info.Coin == "Shekel" {
-        info.Rbalance = getbalance()
-        }
         info.Rbalance = getaddressbalance()
+        if info.Coin == "Shekel" {
+            info.Rbalance = getbalance()
+        }
+        if info.Coin == "Advance" {
+            info.Rbalance = getbalance()
+        }
         fmt.Println("")
 
         //adminpay is % of balance, that it deducted from balance and the rest split among cust according to share
