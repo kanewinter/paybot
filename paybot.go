@@ -280,12 +280,14 @@ package main
         getconfig() 
 
         fmt.Println("")
-        info.Rbalance = getaddressbalance()
         if info.Coin == "Shekel" {
             info.Rbalance = getbalance()
-        }
-        if info.Coin == "Advance" {
-            info.Rbalance = getbalance()
+        } else {
+            if info.Coin == "Advance" {
+                info.Rbalance = getbalance()
+            }
+        } else {
+            info.Rbalance = getaddressbalance()
         }
         fmt.Println("")
 
