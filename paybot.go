@@ -122,15 +122,15 @@ package main
         fmt.Println("Getting Balance...")
 
         balancecmd := "getbalance"
-        cmd := exec.Command(info.Coincli, balancecmd)
+        cmd := exec.Command(info.Coincli, balancecmd, info.Payoutacct)
         out, err := cmd.CombinedOutput()
         if err != nil {
             fmt.Println("exec error ", err.Error, out)
             payabort = true
         }
 
-        s := string(out[:])
-        s = strconv.ParseFloat(s, 64)
+        n := strings.TrimSuffix(string(out[:]), "\n")
+        s, err := strconv.ParseFloat(n, 64)
         //balance has no decimal so this puts it in the right place, this may need to be adjusted per coin project in which case I'll make it a variable for the payconfig
         var tbalance float64 = s / 100000000
 
@@ -138,7 +138,7 @@ package main
         result.WriteString("Curent RAW Balance: ")
         result.WriteString(strconv.FormatFloat(tbalance, 'f', -1, 64))
         result.WriteString("\n")
-        result.WriteString(s)
+        result.WriteString(n)
         tbalance= float64(tbalance - info.Collateral - 0.01)
         tbalance = Truncate(tbalance)
         //if balance is less than 20 for any reason don't pay out. prevents micro payments, also might need to be adjust per project
