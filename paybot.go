@@ -122,7 +122,7 @@ package main
         fmt.Println("Getting Balance...")
 
         balancecmd := "getbalance"
-        cmd := exec.Command(info.Coincli, balancecmd, info.Payoutacct)
+        cmd := exec.Command(info.Coincli, balancecmd)
         out, err := cmd.CombinedOutput()
         if err != nil {
             fmt.Println("exec error ", err.Error, out)
@@ -130,11 +130,12 @@ package main
         }
 
         n := strings.TrimSuffix(string(out[:]), "\n")
+        fmt.Println("Curent
         s, err := strconv.ParseFloat(n, 64)
         //balance has no decimal so this puts it in the right place, this may need to be adjusted per coin project in which case I'll make it a variable for the payconfig
         var tbalance float64 = s / 100000000
 
-        fmt.Println("Curent RAW Balance: ", tbalance)
+        fmt.Println("Current RAW Balance: ", tbalance)
         result.WriteString("Curent RAW Balance: ")
         result.WriteString(strconv.FormatFloat(tbalance, 'f', -1, 64))
         result.WriteString("\n")
