@@ -166,24 +166,22 @@ package main
         n := strings.TrimSuffix(string(out[:]), "\n")
         s, err := strconv.ParseFloat(n, 64)
         //balance has no decimal so this puts it in the right place, this may need to be adjusted per coin project in which case I'll make it a variable for the payconfig
-        var tbalance float64 = s / 100000
 
-        fmt.Println("Current RAW Balance: ", tbalance)
+        fmt.Println("Current RAW Balance: ", n)
         result.WriteString("Curent RAW Balance: ")
-        result.WriteString(strconv.FormatFloat(tbalance, 'f', -1, 64))
-        result.WriteString("\n")
         result.WriteString(n)
-        tbalance= float64(tbalance - info.Collateral - 0.01)
-        tbalance = Truncate(tbalance)
+        result.WriteString("\n")
+        s= float64(s - info.Collateral - 0.01)
+        s = Truncate(s)
         //if balance is less than 20 for any reason don't pay out. prevents micro payments, also might need to be adjust per project
-        if tbalance < 20 {
-            fmt.Println("Balance too low: ", tbalance)
+        if s < 20 {
+            fmt.Println("Balance too low: ", s)
             result.WriteString("Balance too low: ")
-            result.WriteString(strconv.FormatFloat(tbalance, 'f', -1, 64))
+            result.WriteString(strconv.FormatFloat(s, 'f', -1, 64))
             result.WriteString("\n")
             payabort= true
         }
-        return tbalance
+        return s
     }
 
     func getaddressbalance() (float64) {
