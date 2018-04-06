@@ -306,7 +306,9 @@ package main
             payabort = true
             fmt.Println("checkpayments > info.Custpayout    ", checkpayments, info.Custpayout)
         }
-        if (checkpayments + info.Adminfee) > info.Rbalance {
+        ttotal := checkpayments + info.Adminfee
+        ttotal = Truncate(ttotal)
+        if info.Rbalance < ttotal {
             payabort = true
             fmt.Println("payments and adminpay higher than balance     ", checkpayments, info.Custpayout, info.Rbalance)
         }
