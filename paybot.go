@@ -354,7 +354,7 @@ package main
                 fmt.Println("exec error ", err.Error, e)
             }
             e := string(out[:])
-            result.WriteString("Paycommand Output\n")
+            result.WriteString("Pay command Output\n")
             result.WriteString(e)
             info.Tx = e
             result.WriteString("\n")
